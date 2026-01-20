@@ -1,0 +1,34 @@
+{
+  "name": "meal-planner",
+  "version": "1.0.0",
+  "description": "A service oriented application to generate weekly meal plans and shopping lists.",
+  "keywords": [
+    "meal",
+    "plan",
+    "shopping",
+    "diet"
+  ],
+  "homepage": "https://github.com/MocDenny/SDE-PROJECT#readme",
+  "bugs": {
+    "url": "https://github.com/MocDenny/SDE-PROJECT/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MocDenny/SDE-PROJECT.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "node-telegram-bot-api": "^0.67.0",
+    "nodemon": "^3.1.11",
+    "pg": "^8.17.1"
+  }
+}
