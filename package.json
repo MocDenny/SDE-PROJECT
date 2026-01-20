@@ -20,9 +20,7 @@
   "author": "",
   "type": "commonjs",
   "main": "server.js",
-  "scripts": {
-    "start": "nodemon server.js"
-  },
+  
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
