@@ -1,0 +1,10 @@
+name: meal-planner
+services:
+  sample-service:
+    build: ./services/sample_service
+    container_name: sample_service
+    ports:
+      - "3001:3001"
+
+
+    

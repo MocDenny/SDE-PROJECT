@@ -20,6 +20,6 @@ bot.on('message', (msg) => {
 });
 
 // when communication between vuejs and telegram/server is needed
-app.listen(8080, function () {
-    console.log("Server listening on port 8080");
+app.listen(3001, function () {
+    console.log("Server listening on port 3001");
 });
