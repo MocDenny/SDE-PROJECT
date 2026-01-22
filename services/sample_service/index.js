@@ -19,7 +19,11 @@ bot.on('message', (msg) => {
   bot.sendMessage(chatId, 'Bot Test successful');
 });
 
-// when communication between vuejs and telegram/server is needed
+app.get("/", (req, res) => {
+res.json(process.env.TEST_VAR)
+})
+
+
 app.listen(3001, function () {
     console.log("Server listening on port 3001");
 });
