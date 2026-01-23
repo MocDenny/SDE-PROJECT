@@ -1,10 +1,44 @@
 name: meal-planner
 services:
-  sample-service:
-    build: ./services/sample_service
-    container_name: sample_service
+  meal-planner-service:
+    build: ./services/meal_planner_service
+    container_name: meal_planner_service
+    ports:
+      - "3000:3000"
+
+  recipe-data-service:
+    build: ./services/recipe_data_service
+    container_name: recipe_data_service
+    env_file: "database.env"
     ports:
       - "3001:3001"
+
+  user-data-service:
+    build: ./services/user_data_service
+    container_name: user_data_service
+    env_file: "database.env"
+    ports:
+      - "3002:3002"
+
+  nutrition-goals-service:
+    build: ./services/nutrition_goals_service
+    container_name: nutrition_goals_service
+    ports:
+      - "3003:3003"
+
+  menu-fetcher-service:
+    build: ./services/menu_fetcher_service
+    container_name: menu_fetcher_service
+    ports:
+      - "3004:3004"
+
+  recipe-adapter-service:
+    build: ./services/recipe_adapter_service
+    container_name: recipe_adapter_service
+    env_file: "spoonacular.env"
+    ports:
+      - "3005:3005"
+  
 
 
     
