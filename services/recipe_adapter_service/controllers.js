@@ -13,6 +13,8 @@ const get_recipes = function (req, res) {
         url: 'https://api.spoonacular.com/recipes/complexSearch',
         params: {
             type: req.query.type,
+            intolerances: req.query.intolerances,
+            diet: req.query.diet,
             minCalories: req.query.min_cal,
             maxCalories: req.query.max_cal,
             number: req.query.number,

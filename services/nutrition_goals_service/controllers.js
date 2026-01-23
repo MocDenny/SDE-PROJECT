@@ -8,8 +8,8 @@ const get_info = function (req, res) {
     // who made the request?
     const email = req.query.email
     const cal = req.query.calories
-    // divide by calories in order (breakfast, lunch dinner)
-    const cal_per_meal = [ { min: (0.2 * cal), max: (0.25 * cal) }, { min: (0.4 * cal), max: (0.45 * cal) }, { min: (0.35 * cal), max: (0.4 * cal) } ]
+    // divide by calories in order (breakfast, lunch & dinner)
+    const cal_per_meal = [ { min: (0.25 * cal), max: (0.3 * cal) }, { min: (0.35 * cal), max: (0.45 * cal) } ]
 
     // get possible research parameters in the request
     let diet = req.query.diet
@@ -50,7 +50,7 @@ const get_info = function (req, res) {
                 }
             )
     }else{
-        res.status(200).json({ cal_per_meal: [], diet: diet, intolerances: intolerances})        
+        res.status(200).json({ cal_per_meal: cal_per_meal, diet: diet, intolerances: intolerances})        
     }
 
 }
