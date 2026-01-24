@@ -37,6 +37,22 @@ const post_user = function (req, res) {
     });
 }
 
+const get_user = function (req, res) {
+    // error handling
+    if (!req.query.email){
+        return res.status(400).json("Error: Request parameters are empty or incomplete")
+    } 
+    // find the correct user and return diet and intolerances
+    user_model.findOne({ email: req.query.email })
+    .then ( (data) => {
+        if (!data) return res.status(403).json("User " + req.query.email + " is not present in the database");
+        else {
+            res.json(data)
+        }
+    });
+}
+
+// reduced info
 const get_user_pref = function (req, res) {
     // error handling
     if (!req.query.email){
@@ -52,4 +68,4 @@ const get_user_pref = function (req, res) {
     });
 }
 
-module.exports = { post_user, get_user_pref }
+module.exports = { post_user, get_user_pref, get_user }
