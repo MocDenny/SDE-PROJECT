@@ -7,9 +7,6 @@ const get_meal_plan = function (req, res) {
     const email = req.query.email;
     const calories = req.query.calories;
     // TODO: check login process -> is there a token, or other checks to ensure email param is valid?
-    // get possible research parameters in the request
-    const diet = req.query.diet;
-    const intolerances = req.query.intolerances;
 
     // 1. call to get calories division and research filters
     const handle_errors = function (error) {
@@ -41,7 +38,10 @@ const get_meal_plan = function (req, res) {
             method: "get",
             url: "http://localhost:3004/menu",
             params: {
-                cal_per_meal: cal_per_meal,
+                min_cal_breakfast: cal_per_meal[0].min,
+                max_cal_breakfast: cal_per_meal[0].max,
+                min_cal_other: cal_per_meal[1].min,
+                max_cal_other: cal_per_meal[1].max,
                 diet: diet,
                 intolerances: intolerances,
             },

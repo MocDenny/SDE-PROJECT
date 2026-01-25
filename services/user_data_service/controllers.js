@@ -14,7 +14,7 @@ const post_user = function (req, res) {
             let pref = req.body.preferences;
             if (!pref) {
                 pref = {
-                    diet: "none",
+                    diet: "",
                     intolerances: [],
                 };
             }

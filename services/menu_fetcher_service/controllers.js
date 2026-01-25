@@ -2,11 +2,19 @@ const axios = require("axios");
 
 const get_menu = function (req, res) {
     // error handling
-    if (!req.query.cal_per_meal || !req.query.diet || !req.query.intolerances) {
+    if (
+        !req.query.min_cal_breakfast ||
+        !req.query.min_cal_other ||
+        !req.query.max_cal_breakfast ||
+        !req.query.max_cal_other ||
+        !req.query.diet ||
+        !req.query.intolerances
+    ) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
 
-    const cal_per_meal = req.query.cal_per_meal;
+    const cal_breakfast = [req.query.min_cal_breakfast, req.query.max_cal_breakfast];
+    const cal_other = [req.query.min_cal_other, req.query.max_cal_other];
     const diet = req.query.diet;
     const intolerances = req.query.intolerances;
 
@@ -34,8 +42,8 @@ const get_menu = function (req, res) {
             type: "main course",
             intolerances: intolerances,
             diet: diet,
-            minCalories: cal_per_meal[1].min,
-            maxCalories: cal_per_meal[1].max,
+            min_cal: cal_other[0],
+            max_cal: cal_other[1],
             number: 28,
         },
     }).then(function (resp) {
@@ -52,8 +60,8 @@ const get_menu = function (req, res) {
                 type: "breakfast",
                 intolerances: intolerances,
                 diet: diet,
-                minCalories: cal_per_meal[0].min,
-                maxCalories: cal_per_meal[0].max,
+                min_cal: cal_breakfast[0],
+                max_cal: cal_breakfast[1],
                 number: 14,
             },
         }).then(function (resp) {

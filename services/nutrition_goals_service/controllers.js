@@ -11,7 +11,7 @@ const get_info = function (req, res) {
     // divide by calories in order (breakfast, lunch & dinner)
     const cal_per_meal = [
         { min: 0.25 * cal, max: 0.3 * cal },
-        { min: 0.35 * cal, max: 0.45 * cal },
+        { min: 0.35 * cal, max: 0.4 * cal },
     ];
 
     // get possible research parameters in the request
