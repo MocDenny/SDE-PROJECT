@@ -36,15 +36,15 @@ const accepted_aisle = [
 ];
 
 const recipeSchema = new Schema({
-    name: String,
-    type: String,
-    calories: Number,
+    name: { type: String, required: true },
+    type: { type: String, required: true },
+    calories: { type: Number, required: true },
     ingredients: [
         {
-            amount: Number,
-            unit: String,
-            name: String,
-            aisle: { type: String, enum: accepted_aisle },
+            amount: { type: Number, required: true },
+            unit: { type: String, required: true },
+            name: { type: String, required: true },
+            aisle: { type: String, enum: accepted_aisle, required: true },
         },
     ],
 });

@@ -21,11 +21,11 @@ const post_recipe = function (req, res) {
             // save all recipes in the db
             new_recipe
                 .save()
-                .catch((err) => {
-                    return res.status(500).json("Saving error" + err);
-                })
                 .then((data) => {
                     res.json(data);
+                })
+                .catch((err) => {
+                    return res.status(500).json("Saving error - " + err);
                 });
         }
     });
@@ -49,11 +49,11 @@ const post_plan = function (req, res) {
             // save new meal plan in the db
             new_plan
                 .save()
-                .catch((err) => {
-                    return res.status(500).json("Saving error" + err);
-                })
                 .then((data) => {
                     res.json(data);
+                })
+                .catch((err) => {
+                    return res.status(500).json("Saving error" + err);
                 });
         }
     });

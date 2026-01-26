@@ -4,7 +4,6 @@ const mongoose = require("mongoose");
 const { post_recipe, post_plan } = require("./controllers.js");
 
 // database connection
-
 mongoose.connect(process.env.CONNECTION_STRING).catch((error) => {
     console.log("Database connection error: " + error);
 });

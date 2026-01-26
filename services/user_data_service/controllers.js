@@ -27,11 +27,11 @@ const post_user = function (req, res) {
 
             new_user
                 .save()
-                .catch((err) => {
-                    return res.status(500).json("Saving error" + err);
-                })
                 .then((data) => {
                     res.json(data);
+                })
+                .catch((err) => {
+                    return res.status(500).json("Saving error" + err);
                 });
         }
     });
