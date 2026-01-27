@@ -1,5 +1,5 @@
-const express = require('express');
-const {get_info} = require('./controllers')
+const express = require("express");
+const { get_info } = require("./controllers");
 
 const app = express();
 app.use(express.json());

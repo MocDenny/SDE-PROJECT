@@ -16,7 +16,7 @@ const post_user = function (req, res) {
             let pref = req.body.preferences;
             if (!pref) {
                 pref = {
-                    diet: "none",
+                    diet: "",
                     intolerances: [],
                 };
             }
@@ -33,11 +33,11 @@ const post_user = function (req, res) {
 
             new_user
                 .save()
-                .catch((err) => {
-                    return res.status(500).json("Saving error" + err);
-                })
                 .then((data) => {
                     res.json(data);
+                })
+                .catch((err) => {
+                    return res.status(500).json("Saving error" + err);
                 });
         }
     });

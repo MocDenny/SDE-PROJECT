@@ -19,7 +19,7 @@ app.use(express.json());
 
 // define routes
 app.post("/user", post_user);
-app.get("/user/:email", get_user);
+app.get("/user/:email/", get_user);
 app.get("/userByToken", get_user_by_token);
 app.get("/pref", get_user_pref);
 app.patch("/user/:email", patch_user);
