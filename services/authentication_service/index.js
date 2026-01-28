@@ -10,6 +10,6 @@ app.get("/login", login);
 app.post("/signup", signup);
 app.post("/telegram_link", telegram_link_account);
 
-app.listen(3006, function () {
-    console.log("Server listening on port 3006");
+app.listen(process.env.AUTH_PORT, function () {
+    console.log(`Service listening on port ${process.env.AUTH_PORT}`);
 });
