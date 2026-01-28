@@ -7,7 +7,7 @@ const login = function (req, res) {
     // retrieve user info based on the email
     axios({
         method: "get",
-        url: `http://user_data_service:3002/user/${email}`,
+        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user/${email}`,
     }).then(
         function (resp) {
             const user = resp.data;
@@ -44,7 +44,7 @@ const signup = function (req, res) {
 
     axios({
         method: "post",
-        url: "http://user_data_service:3002/user",
+        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user`,
         data: {
             email: email,
             password: password,
@@ -82,7 +82,7 @@ const telegram_link_account = function (req, res) {
     // retrieve user info based on the token
     axios({
         method: "get",
-        url: "http://user_data_service:3002/userByToken",
+        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/userByToken`,
         params: {
             token: token,
         },
@@ -93,7 +93,7 @@ const telegram_link_account = function (req, res) {
             // link the telegramUserId with the user account in the database
             axios({
                 method: "patch",
-                url: `http://user_data_service:3002/user/${email}`,
+                url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user/${email}`,
                 data: {
                     telegramUserId: telegramUserId,
                 },

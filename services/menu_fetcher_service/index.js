@@ -7,6 +7,6 @@ app.use(express.json());
 // define route to get 2 personalized meal plans for the week
 app.get("/menu", get_menu);
 
-app.listen(3004, function () {
-    console.log("Service listening on port 3004");
+app.listen(process.env.MENU_FETCHER_PORT, function () {
+    console.log(`Service listening on port ${process.env.MENU_FETCHER_PORT}`);
 });

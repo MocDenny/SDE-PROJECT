@@ -23,7 +23,7 @@ bot.onText(/\/start (.+)/, (msg, match) => {
     // link the chatId with a user account in the database with authentication_service
     axios({
         method: "post",
-        url: "http://authentication_service:3006/telegram_link",
+        url: `http://${process.env.AUTH_CONTAINER}:${process.env.AUTH_PORT}/telegram_link`,
         data: {
             telegramUserId: telegramUserId,
             token: token,
@@ -56,6 +56,6 @@ bot.on("message", (msg) => {
     bot.sendMessage(chatId, "Bot Test successful");
 });
 
-app.listen(3020, function () {
-    console.log("Server listening on port 3020");
+app.listen(process.env.BOT_PORT, function () {
+    console.log(`Service listening on port ${process.env.BOT_PORT}`);
 });

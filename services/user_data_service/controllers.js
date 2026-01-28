@@ -68,10 +68,7 @@ const get_user_pref = function (req, res) {
     }
     // find the correct user and return diet and intolerances
     user_model.findOne({ email: req.query.email }).then((data) => {
-        if (!data)
-            return res
-                .status(403)
-                .json("User " + req.query.email + " is not present in the database");
+        if (!data) return res.status(403).json("User is not present in the database");
         else {
             res.json(data.preferences);
         }
