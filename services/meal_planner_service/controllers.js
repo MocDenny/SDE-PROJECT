@@ -1,12 +1,12 @@
 const get_meal_plan = function (req, res) {
     // error handling
-    if (!req.query.email || !req.query.calories) {
+    if (!req.query.user_id || !req.query.calories) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
     // who made the request?
-    const email = req.query.email;
+    const user_id = req.query.user_id;
     const calories = req.query.calories;
-    // TODO: check login process -> is there a token, or other checks to ensure email param is valid?
+    // TODO: check login process -> is there a token, or other checks to ensure user_id param is valid?
 
     // 1. call to get calories division and research filters
     const handle_errors = function (error) {
@@ -25,7 +25,7 @@ const get_meal_plan = function (req, res) {
         method: "get",
         url: "http://localhost:3003/goals",
         params: {
-            email: email,
+            user_id: user_id,
             calories: calories,
         },
     }).then(function (resp) {
@@ -54,20 +54,20 @@ const get_meal_plan = function (req, res) {
 
 const save_meal_plan = function (req, res) {
     // error handling
-    if (!req.body.plan || !req.body.email) {
+    if (!req.body.plan || !req.body.user_id) {
         return res.status(400).json("Error: Request Body is empty or incomplete");
     }
     // who made the request?
-    const email = req.body.email;
+    const user_id = req.body.user_id;
     const plan = req.body.plan;
-    // TODO: check login process -> is there a token, or other checks to ensure email param is valid?
+    // TODO: check login process -> is there a token, or other checks to ensure user_id param is valuser_id?
 
     // contact user data service: retrieve user and save plan
     axios({
         method: "get",
         url: "http://localhost:3002/user",
         params: {
-            email: email,
+            user_id: user_id,
         },
     }).then(function (resp) {
         const account = resp.data;

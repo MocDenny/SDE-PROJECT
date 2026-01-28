@@ -2,11 +2,11 @@ const axios = require("axios");
 
 const get_info = function (req, res) {
     // error handling
-    if (!req.query.email || !req.query.calories) {
+    if (!req.query.user_id || !req.query.calories) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
     // who made the request?
-    const email = req.query.email;
+    const user_id = req.query.user_id;
     const cal = req.query.calories;
     // divide by calories in order (breakfast, lunch & dinner)
     const cal_per_meal = [
@@ -24,7 +24,7 @@ const get_info = function (req, res) {
             method: "get",
             url: "http://localhost:3002/pref",
             params: {
-                email: email,
+                user_id: user_id,
             },
         }).then(
             function (resp) {
