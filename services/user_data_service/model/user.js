@@ -10,7 +10,7 @@ const userSchema = new Schema({
     preferences: {
         diet: {
             type: String,
-            enum: ["ketogenic", "none", "vegan", "vegeterian", "pescaterian", "paleo"],
+            enum: ["ketogenic", "", "vegan", "vegeterian", "pescaterian", "paleo"],
         },
         intolerances: [
             {

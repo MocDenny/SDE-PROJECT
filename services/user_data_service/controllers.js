@@ -37,7 +37,7 @@ const post_user = function (req, res) {
                     res.json(data);
                 })
                 .catch((err) => {
-                    return res.status(500).json("Saving error" + err);
+                    return res.status(400).json("Saving error" + err);
                 });
         }
     });
