@@ -22,7 +22,7 @@ const get_info = function (req, res) {
         // request info from adapter
         axios({
             method: "get",
-            url: "http://localhost:3002/pref",
+            url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/pref`,
             params: {
                 email: email,
             },

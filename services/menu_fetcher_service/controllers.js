@@ -37,7 +37,7 @@ const get_menu = function (req, res) {
     // 1. send requests for lunch & dinner
     axios({
         method: "get",
-        url: "http://localhost:3005/recipes",
+        url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes`,
         params: {
             type: "main course",
             intolerances: intolerances,
@@ -55,7 +55,7 @@ const get_menu = function (req, res) {
 
         axios({
             method: "get",
-            url: "http://localhost:3005/recipes",
+            url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes`,
             params: {
                 type: "breakfast",
                 intolerances: intolerances,

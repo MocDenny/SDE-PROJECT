@@ -15,6 +15,6 @@ app.use(express.json());
 app.post("/recipe", post_recipe);
 app.post("/plan", post_plan);
 
-app.listen(3001, function () {
-    console.log("Server listening on port 3001");
+app.listen(process.env.RECIPE_DATA_PORT, function () {
+    console.log(`Server listening on port ${process.env.RECIPE_DATA_PORT}`);
 });

@@ -3,38 +3,87 @@ services:
     meal-planner-service:
         build: ./services/meal_planner_service
         container_name: meal_planner_service
+        env_file: "containers.env"
         ports:
             - "3000:3000"
+        volumes:
+            - ./services/meal_planner_service:/app
+            - /app/node_modules
 
     recipe-data-service:
         build: ./services/recipe_data_service
         container_name: recipe_data_service
-        env_file: "database.env"
+        env_file:
+            - "database.env"
+            - "containers.env"
         ports:
             - "3001:3001"
+        volumes:
+            - ./services/recipe_data_service:/app
+            - /app/node_modules
 
     user-data-service:
         build: ./services/user_data_service
         container_name: user_data_service
-        env_file: "database.env"
+        env_file:
+            - "database.env"
+            - "containers.env"
         ports:
             - "3002:3002"
+        volumes:
+            - ./services/user_data_service:/app
+            - /app/node_modules
 
     nutrition-goals-service:
         build: ./services/nutrition_goals_service
         container_name: nutrition_goals_service
+        env_file: "containers.env"
         ports:
             - "3003:3003"
+        volumes:
+            - ./services/nutrition_goals_service:/app
+            - /app/node_modules
 
     menu-fetcher-service:
         build: ./services/menu_fetcher_service
         container_name: menu_fetcher_service
+        env_file: "containers.env"
         ports:
             - "3004:3004"
+        volumes:
+            - ./services/menu_fetcher_service:/app
+            - /app/node_modules
 
     recipe-adapter-service:
         build: ./services/recipe_adapter_service
         container_name: recipe_adapter_service
-        env_file: "spoonacular.env"
+        env_file:
+            - "spoonacular.env"
+            - "containers.env"
         ports:
             - "3005:3005"
+        volumes:
+            - ./services/recipe_adapter_service:/app
+            - /app/node_modules
+
+    authentication-service:
+        build: ./services/authentication_service
+        container_name: authentication_service
+        env_file: "containers.env"
+        ports:
+            - "3006:3006"
+        volumes:
+            - ./services/authentication_service:/app
+            - /app/node_modules
+
+    telegram-bot-service:
+        build: ./services/telegram_bot_service
+        container_name: telegram_bot_service
+        env_file:
+            - "bot.env"
+            - "containers.env"
+        ports:
+            - "3020:3020"
+        volumes:
+            - ./services/telegram_bot_service:/app
+            - /app/node_modules

@@ -7,6 +7,6 @@ app.use(express.json());
 // define routes
 app.get("/recipes", get_recipes);
 
-app.listen(3005, function () {
-    console.log("Service listening on port 3005");
+app.listen(process.env.RECIPE_ADAPTER_PORT, function () {
+    console.log(`Service listening on port ${process.env.RECIPE_ADAPTER_PORT}`);
 });

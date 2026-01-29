@@ -9,6 +9,6 @@ app.get("/plan", get_meal_plan);
 // define route to save the meal plan
 app.post("/plan", save_meal_plan);
 
-app.listen(3000, function () {
-    console.log("Service listening on port 3000");
+app.listen(process.env.MEAL_PLANNER_PORT, function () {
+    console.log(`Service listening on port ${process.env.MEAL_PLANNER_PORT}`);
 });

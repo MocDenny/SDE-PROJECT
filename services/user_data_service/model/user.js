@@ -5,6 +5,8 @@ const { Schema, model } = mongoose;
 const userSchema = new Schema({
     email: String,
     password: String,
+    telegramLinkToken: String,
+    telegramUserId: String,
     preferences: {
         diet: {
             type: String,

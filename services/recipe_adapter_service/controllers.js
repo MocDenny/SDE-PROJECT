@@ -2,11 +2,6 @@ const axios = require("axios");
 
 const get_recipes = function (req, res) {
     // error handling
-    const a = !req.query.min_cal;
-    const b = !req.query.max_cal;
-    const c = !req.query.diet;
-    const d = !req.query.intolerances;
-    const e = !req.query.number;
     if (
         !req.query.type ||
         !req.query.max_cal ||

@@ -23,7 +23,7 @@ const get_meal_plan = function (req, res) {
 
     axios({
         method: "get",
-        url: "http://localhost:3003/goals",
+        url: `http://${process.env.NUTRITION_GOALS_CONTAINER}:${process.env.NUTRITION_GOALS_PORT}/goals`,
         params: {
             email: email,
             calories: calories,
@@ -36,7 +36,7 @@ const get_meal_plan = function (req, res) {
 
         axios({
             method: "get",
-            url: "http://localhost:3004/menu",
+            url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu`,
             params: {
                 min_cal_breakfast: cal_per_meal[0].min,
                 max_cal_breakfast: cal_per_meal[0].max,
@@ -60,12 +60,12 @@ const save_meal_plan = function (req, res) {
     // who made the request?
     const email = req.body.email;
     const plan = req.body.plan;
-    // TODO: check login process -> is there a token, or other checks to ensure email param is valid?
+    // TODO: check login process -> is there a token, or other checks to ensure email param is valemail?
 
     // contact user data service: retrieve user and save plan
     axios({
         method: "get",
-        url: "http://localhost:3002/user",
+        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user`,
         params: {
             email: email,
         },
@@ -73,7 +73,7 @@ const save_meal_plan = function (req, res) {
         const account = resp.data;
         axios({
             method: "post",
-            url: "http://localhost:3004/menu",
+            url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu`,
             params: {
                 cal_per_meal: cal_per_meal,
                 diet: diet,
