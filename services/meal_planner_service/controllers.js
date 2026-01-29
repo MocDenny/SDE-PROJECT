@@ -1,12 +1,11 @@
 const get_meal_plan = function (req, res) {
     // error handling
-    if (!req.query.email || !req.query.calories) {
+    if (!req.params.email || !req.params.calories) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
     // who made the request?
-    const email = req.query.email;
-    const calories = req.query.calories;
-    // TODO: check login process -> is there a token, or other checks to ensure email param is valid?
+    const email = req.params.email;
+    const calories = req.params.calories;
 
     // 1. call to get calories division and research filters
     const handle_errors = function (error) {
@@ -23,11 +22,7 @@ const get_meal_plan = function (req, res) {
 
     axios({
         method: "get",
-        url: `http://${process.env.NUTRITION_GOALS_CONTAINER}:${process.env.NUTRITION_GOALS_PORT}/goals`,
-        params: {
-            email: email,
-            calories: calories,
-        },
+        url: `http://${process.env.NUTRITION_GOALS_CONTAINER}:${process.env.NUTRITION_GOALS_PORT}/goals/${email}/${calories}`,
     }).then(function (resp) {
         // 2. fetch 2 meal plans
         const cal_per_meal = resp.data.cal_per_meal;
@@ -36,15 +31,7 @@ const get_meal_plan = function (req, res) {
 
         axios({
             method: "get",
-            url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu`,
-            params: {
-                min_cal_breakfast: cal_per_meal[0].min,
-                max_cal_breakfast: cal_per_meal[0].max,
-                min_cal_other: cal_per_meal[1].min,
-                max_cal_other: cal_per_meal[1].max,
-                diet: diet,
-                intolerances: intolerances,
-            },
+            url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu/${cal_per_meal[0].min}/${cal_per_meal[0].max}/${cal_per_meal[1].min}/${cal_per_meal[1].max}/${diet}/${intolerances}`,
         }).then(function (resp) {
             // 3. return 2 meal plans for the week
             res.status(200).json(resp.data);
@@ -60,12 +47,11 @@ const save_meal_plan = function (req, res) {
     // who made the request?
     const email = req.body.email;
     const plan = req.body.plan;
-    // TODO: check login process -> is there a token, or other checks to ensure email param is valemail?
 
     // contact user data service: retrieve user and save plan
     axios({
         method: "get",
-        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user`,
+        url: "http://localhost:3002/user",
         params: {
             email: email,
         },
@@ -73,7 +59,7 @@ const save_meal_plan = function (req, res) {
         const account = resp.data;
         axios({
             method: "post",
-            url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu`,
+            url: "http://localhost:3004/menu",
             params: {
                 cal_per_meal: cal_per_meal,
                 diet: diet,

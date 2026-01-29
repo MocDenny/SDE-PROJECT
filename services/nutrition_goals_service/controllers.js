@@ -2,12 +2,12 @@ const axios = require("axios");
 
 const get_info = function (req, res) {
     // error handling
-    if (!req.query.email || !req.query.calories) {
+    if (!req.params.email || !req.params.calories) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
     // who made the request?
-    const email = req.query.email;
-    const cal = req.query.calories;
+    const email = req.params.email;
+    const cal = req.params.calories;
     // divide by calories in order (breakfast, lunch & dinner)
     const cal_per_meal = [
         { min: 0.25 * cal, max: 0.3 * cal },
@@ -15,14 +15,14 @@ const get_info = function (req, res) {
     ];
 
     // get possible research parameters in the request
-    let diet = req.query.diet;
-    let intolerances = req.query.intolerances;
+    let diet = req.params.diet;
+    let intolerances = req.params.intolerances;
     // retrieve user info if necessary
     if (!diet || !intolerances) {
         // request info from adapter
         axios({
             method: "get",
-            url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/pref`,
+            url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user/pref/${email}`,
             params: {
                 email: email,
             },
