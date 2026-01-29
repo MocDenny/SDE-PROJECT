@@ -63,12 +63,15 @@ const get_user = function (req, res) {
 // reduced info
 const get_user_pref = function (req, res) {
     // error handling
-    if (!req.query.email) {
+    if (!req.params.email) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
     // find the correct user and return diet and intolerances
-    user_model.findOne({ email: req.query.email }).then((data) => {
-        if (!data) return res.status(403).json("User is not present in the database");
+    user_model.findOne({ email: req.params.email }).then((data) => {
+        if (!data)
+            return res
+                .status(403)
+                .json("User " + req.params.email + " is not present in the database");
         else {
             res.json(data.preferences);
         }
@@ -77,15 +80,15 @@ const get_user_pref = function (req, res) {
 
 const get_user_by_token = function (req, res) {
     // error handling
-    if (!req.query.token) {
+    if (!req.params.token) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
     // find the correct user and return it
-    user_model.findOne({ telegramLinkToken: req.query.token }).then((data) => {
+    user_model.findOne({ telegramLinkToken: req.params.token }).then((data) => {
         if (!data)
             return res
                 .status(403)
-                .json("Token " + req.query.token + " is not present in the database");
+                .json("Token " + req.params.token + " is not present in the database");
         else {
             res.json(data);
         }

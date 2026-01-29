@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 // define route to get the meal plan
-app.get("/plan", get_meal_plan);
+app.get("/plan/:email/:calories", get_meal_plan);
 // define route to save the meal plan
 app.post("/plan", save_meal_plan);
 

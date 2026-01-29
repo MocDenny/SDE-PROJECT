@@ -3,20 +3,20 @@ const axios = require("axios");
 const get_menu = function (req, res) {
     // error handling
     if (
-        !req.query.min_cal_breakfast ||
-        !req.query.min_cal_other ||
-        !req.query.max_cal_breakfast ||
-        !req.query.max_cal_other ||
-        !req.query.diet ||
-        !req.query.intolerances
+        !req.params.min_cal_breakfast ||
+        !req.params.min_cal_other ||
+        !req.params.max_cal_breakfast ||
+        !req.params.max_cal_other ||
+        !req.params.diet ||
+        !req.params.intolerances
     ) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
 
-    const cal_breakfast = [req.query.min_cal_breakfast, req.query.max_cal_breakfast];
-    const cal_other = [req.query.min_cal_other, req.query.max_cal_other];
-    const diet = req.query.diet;
-    const intolerances = req.query.intolerances;
+    const cal_breakfast = [req.params.min_cal_breakfast, req.params.max_cal_breakfast];
+    const cal_other = [req.params.min_cal_other, req.params.max_cal_other];
+    const diet = req.params.diet;
+    const intolerances = req.params.intolerances;
 
     // records of the found recipes to fill
     let breakfast_list = [];
@@ -37,15 +37,7 @@ const get_menu = function (req, res) {
     // 1. send requests for lunch & dinner
     axios({
         method: "get",
-        url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes`,
-        params: {
-            type: "main course",
-            intolerances: intolerances,
-            diet: diet,
-            min_cal: cal_other[0],
-            max_cal: cal_other[1],
-            number: 28,
-        },
+        url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes/main_course/${cal_other[0]}/${cal_other[1]}/${diet}/${intolerances}/28`,
     }).then(function (resp) {
         for (const result of resp.data) {
             lunch_din_list.push(result);
@@ -55,15 +47,7 @@ const get_menu = function (req, res) {
 
         axios({
             method: "get",
-            url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes`,
-            params: {
-                type: "breakfast",
-                intolerances: intolerances,
-                diet: diet,
-                min_cal: cal_breakfast[0],
-                max_cal: cal_breakfast[1],
-                number: 14,
-            },
+            url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes/breakfast/${cal_breakfast[0]}/${cal_breakfast[1]}/${diet}/${intolerances}/14`,
         }).then(function (resp) {
             for (const result of resp.data) {
                 breakfast_list.push(result);

@@ -3,12 +3,12 @@ const axios = require("axios");
 const get_recipes = function (req, res) {
     // error handling
     if (
-        !req.query.type ||
-        !req.query.max_cal ||
-        !req.query.min_cal ||
-        !req.query.diet ||
-        !req.query.intolerances ||
-        !req.query.number
+        !req.params.type ||
+        !req.params.max_cal ||
+        !req.params.min_cal ||
+        !req.params.diet ||
+        !req.params.intolerances ||
+        !req.params.number
     ) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
@@ -18,12 +18,12 @@ const get_recipes = function (req, res) {
         method: "get",
         url: "https://api.spoonacular.com/recipes/complexSearch",
         params: {
-            type: req.query.type,
-            intolerances: req.query.intolerances,
-            diet: req.query.diet,
-            minCalories: req.query.min_cal,
-            maxCalories: req.query.max_cal,
-            number: req.query.number,
+            type: req.params.type,
+            intolerances: req.params.intolerances,
+            diet: req.params.diet,
+            minCalories: req.params.min_cal,
+            maxCalories: req.params.max_cal,
+            number: req.params.number,
             sort: "random",
             fillIngredients: true,
             apiKey: process.env.API_KEY,
@@ -45,7 +45,7 @@ const get_recipes = function (req, res) {
                 }
                 recipes.push({
                     name: recipe.title,
-                    type: req.query.type,
+                    type: req.params.type,
                     calories: recipe.nutrition.nutrients[0].amount,
                     ingredients: ingredient_list,
                 });
