@@ -82,10 +82,7 @@ const telegram_link_account = function (req, res) {
     // retrieve user info based on the token
     axios({
         method: "get",
-        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/userByToken`,
-        params: {
-            token: token,
-        },
+        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/userByToken/${token}`,
     }).then(
         function (resp) {
             console.log("User info retrieved successfully:", resp.data);
