@@ -4,6 +4,8 @@ const login = function (req, res) {
     const email = req.body.email;
     const password = req.body.password;
 
+    console.log("Login attempt for user: " + email + " with password: " + password);
+
     // retrieve user info based on the email
     axios({
         method: "get",
@@ -14,7 +16,7 @@ const login = function (req, res) {
             // check password
             if (user.password === password) {
                 console.log("Login successful for user: " + email);
-                res.status(200).json("Login successful!");
+                res.status(200).json(resp.data);
             } else {
                 console.log("Invalid password for user: " + email);
                 res.status(401).json("Invalid password");
@@ -40,7 +42,9 @@ const login = function (req, res) {
 const signup = function (req, res) {
     const email = req.body.email;
     const password = req.body.password;
-    const pref = req.body.preferences || {};
+    const diet = req.body.diet || "";
+    const intolerances = req.body.intolerances || [];
+    const pref = { diet: diet, intolerances: intolerances };
 
     axios({
         method: "post",

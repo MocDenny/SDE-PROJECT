@@ -1,0 +1,13 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Roboto", sans-serif;
+    height: 100%; /* Assicura che l'altezza della finestra sia considerata */
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Assicura che il contenitore principale occupi l'intera altezza */
+}
