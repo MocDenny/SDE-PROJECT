@@ -3,6 +3,54 @@ const { v4: uuidv4 } = require("uuid");
 // users controllers
 const { user_model } = require("./model/user.js");
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: User email
+ *         password:
+ *           type: string
+ *           description: User password
+ *         telegramLinkToken:
+ *           type: string
+ *           description: Unique token for linking with Telegram
+ *         preferences:
+ *           type: object
+ *           properties:
+ *             diet:
+ *               type: string
+ *               description: Preferred diet
+ *             intolerances:
+ *               type: array
+ *               items:
+ *                 type: string
+ *                 description: List of intolerances
+ */
+
+/**
+ * @swagger
+ * /user:
+ *   post:
+ *     summary: Creates a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: User created successfully
+ *       400:
+ *         description: Invalid request
+ *       403:
+ *         description: User already present
+ */
 const post_user = function (req, res) {
     // error handling
     if (!req.body) {
@@ -43,6 +91,26 @@ const post_user = function (req, res) {
     });
 };
 
+/**
+ * @swagger
+ * /user/{email}:
+ *   get:
+ *     summary: Fetch details of a user
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User email
+ *     responses:
+ *       200:
+ *         description: User details
+ *       400:
+ *         description: Missing parameters
+ *       403:
+ *         description: User not found
+ */
 const get_user = function (req, res) {
     // error handling
     if (!req.params.email) {
@@ -60,7 +128,26 @@ const get_user = function (req, res) {
     });
 };
 
-// reduced info
+/**
+ * @swagger
+ * /user/pref/{email}:
+ *   get:
+ *     summary: Fetch user preferences
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User email
+ *     responses:
+ *       200:
+ *         description: User preferences
+ *       400:
+ *         description: Missing parameters
+ *       403:
+ *         description: User not found
+ */
 const get_user_pref = function (req, res) {
     // error handling
     if (!req.params.email) {
@@ -78,6 +165,26 @@ const get_user_pref = function (req, res) {
     });
 };
 
+/**
+ * @swagger
+ * /userByToken/{token}:
+ *   get:
+ *     summary: Fetch user details by Telegram token
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Telegram link token
+ *     responses:
+ *       200:
+ *         description: User details
+ *       400:
+ *         description: Missing parameters
+ *       403:
+ *         description: Token not found
+ */
 const get_user_by_token = function (req, res) {
     // error handling
     if (!req.params.token) {
@@ -95,7 +202,32 @@ const get_user_by_token = function (req, res) {
     });
 };
 
-// patch user info
+/**
+ * @swagger
+ * /user/{email}:
+ *   patch:
+ *     summary: Updates user information
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User email
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *       400:
+ *         description: Invalid request
+ *       403:
+ *         description: User not found
+ */
 const patch_user = function (req, res) {
     // error handling
     if (!req.body || !req.params.email) {

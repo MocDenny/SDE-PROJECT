@@ -2,6 +2,70 @@
 const { recipe_model } = require("./model/recipe.js");
 const { meal_plan_model } = require("./model/meal_plan.js");
 
+/**
+ * @swagger
+ * /recipe:
+ *   post:
+ *     summary: Add a new recipe
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the recipe
+ *               type:
+ *                 type: string
+ *                 description: Type of the recipe (e.g., breakfast, lunch, etc.)
+ *               calories:
+ *                 type: number
+ *                 description: Calories in the recipe
+ *               ingredients:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: List of ingredients
+ *     responses:
+ *       200:
+ *         description: Recipe added successfully
+ *       400:
+ *         description: Invalid request
+ *       403:
+ *         description: Recipe already exists
+ */
+
+/**
+ * @swagger
+ * /plan:
+ *   post:
+ *     summary: Add a new meal plan
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
+ *               plan:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: List of meals in the plan
+ *     responses:
+ *       200:
+ *         description: Meal plan added successfully
+ *       400:
+ *         description: Invalid request
+ *       403:
+ *         description: Meal plan already exists
+ */
+
 const post_recipe = function (req, res) {
     // error handling
     if (!req.body) {

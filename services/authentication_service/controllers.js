@@ -1,5 +1,90 @@
 const axios = require("axios");
 
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Authenticate a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
+ *               password:
+ *                 type: string
+ *                 description: User password
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       401:
+ *         description: Invalid password
+ *       500:
+ *         description: Service error
+ */
+
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
+ *               password:
+ *                 type: string
+ *                 description: User password
+ *               diet:
+ *                 type: string
+ *                 description: User diet preference
+ *               intolerances:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: List of user intolerances
+ *     responses:
+ *       201:
+ *         description: Signup successful
+ *       500:
+ *         description: Service error
+ */
+
+/**
+ * @swagger
+ * /telegram_link:
+ *   post:
+ *     summary: Link a Telegram account to a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               telegramUserId:
+ *                 type: string
+ *                 description: Telegram user ID
+ *               token:
+ *                 type: string
+ *                 description: Telegram link token
+ *     responses:
+ *       200:
+ *         description: Telegram account linked successfully
+ *       500:
+ *         description: Service error
+ */
+
 const login = function (req, res) {
     const email = req.body.email;
     const password = req.body.password;

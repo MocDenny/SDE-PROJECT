@@ -1,5 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
+
 // controller import
 const {
     post_user,
@@ -16,6 +19,28 @@ mongoose.connect(process.env.CONNECTION_STRING).catch((error) => {
 
 const app = express();
 app.use(express.json());
+
+// Swagger configuration
+const swaggerOptions = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "User Data Service API",
+            version: "1.0.0",
+            description: "APIs to manage users and their preferences",
+        },
+        servers: [
+            {
+                url: "http://localhost:3002",
+                description: "Local server",
+            },
+        ],
+    },
+    apis: ["./controllers.js"], // Percorso ai file con i commenti JSDoc
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // define routes
 app.post("/user", post_user);
