@@ -98,3 +98,13 @@ services:
         volumes:
             - ./services/telegram_bot_service:/app
             - /app/node_modules
+
+    grocery-optimization-service:
+        build: ./services/grocery_optimization_service
+        container_name: grocery_optimization_service
+        env_file: "containers.env"
+        ports:
+            - "3007:3007"
+        volumes:
+            - ./services/grocery_optimization_service:/app
+            - /app/node_modules
