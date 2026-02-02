@@ -48,26 +48,15 @@ const save_meal_plan = function (req, res) {
     const email = req.body.email;
     const plan = req.body.plan;
 
-    // contact user data service: retrieve user and save plan
     axios({
-        method: "get",
-        url: "http://localhost:3002/user",
+        method: "post",
+        url: "http://localhost:3001/plan",
         params: {
+            plan: plan,
             email: email,
         },
     }).then(function (resp) {
-        const account = resp.data;
-        axios({
-            method: "post",
-            url: "http://localhost:3004/menu",
-            params: {
-                cal_per_meal: cal_per_meal,
-                diet: diet,
-                intolerances: intolerances,
-            },
-        }).then(function (resp) {
-            res.status(201).json(resp.data);
-        }, handle_errors);
+        res.status(201).json(resp.data);
     }, handle_errors);
 };
 
