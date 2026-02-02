@@ -26,65 +26,6 @@ const axios = require("axios");
  *       500:
  *         description: Service error
  */
-
-/**
- * @swagger
- * /signup:
- *   post:
- *     summary: Register a new user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 description: User email
- *               password:
- *                 type: string
- *                 description: User password
- *               diet:
- *                 type: string
- *                 description: User diet preference
- *               intolerances:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: List of user intolerances
- *     responses:
- *       201:
- *         description: Signup successful
- *       500:
- *         description: Service error
- */
-
-/**
- * @swagger
- * /telegram_link:
- *   post:
- *     summary: Link a Telegram account to a user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               telegramUserId:
- *                 type: string
- *                 description: Telegram user ID
- *               token:
- *                 type: string
- *                 description: Telegram link token
- *     responses:
- *       200:
- *         description: Telegram account linked successfully
- *       500:
- *         description: Service error
- */
-
 const login = function (req, res) {
     const email = req.body.email;
     const password = req.body.password;
@@ -124,6 +65,38 @@ const login = function (req, res) {
     );
 };
 
+/**
+ * @swagger
+ * /signup:
+ *   post:
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
+ *               password:
+ *                 type: string
+ *                 description: User password
+ *               diet:
+ *                 type: string
+ *                 description: User diet preference
+ *               intolerances:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: List of user intolerances
+ *     responses:
+ *       201:
+ *         description: Signup successful
+ *       500:
+ *         description: Service error
+ */
 const signup = function (req, res) {
     const email = req.body.email;
     const password = req.body.password;
@@ -161,6 +134,30 @@ const signup = function (req, res) {
     );
 };
 
+/**
+ * @swagger
+ * /telegram_link:
+ *   post:
+ *     summary: Link a Telegram account to a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               telegramUserId:
+ *                 type: string
+ *                 description: Telegram user ID
+ *               token:
+ *                 type: string
+ *                 description: Telegram link token
+ *     responses:
+ *       200:
+ *         description: Telegram account linked successfully
+ *       500:
+ *         description: Service error
+ */
 const telegram_link_account = function (req, res) {
     // get the telegram user id and token from the request
     const telegramUserId = req.body.telegramUserId;
@@ -226,8 +223,93 @@ const telegram_link_account = function (req, res) {
     );
 };
 
+/**
+ * @swagger
+ * /telegram_unlink:
+ *   post:
+ *     summary: Unlink a Telegram account from a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               telegramUserId:
+ *                 type: string
+ *                 description: Telegram user ID
+ *     responses:
+ *       200:
+ *         description: Telegram account unlinked successfully
+ *       500:
+ *         description: Service error
+ */
+const telegram_unlink_account = function (req, res) {
+    const telegramUserId = req.body.telegramUserId;
+
+    console.log("Unlinking Telegram user ID " + telegramUserId);
+
+    // retrieve user info based on the token
+    axios({
+        method: "get",
+        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user`,
+        params: {
+            telegramId: telegramUserId,
+        },
+    }).then(
+        function (resp) {
+            console.log("User info retrieved successfully:", resp.data);
+            const email = resp.data.email;
+            // unlink the telegramUserId from the user account in the database
+            axios({
+                method: "patch",
+                url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user/${email}`,
+                data: {
+                    telegramUserId: null,
+                },
+            }).then(
+                function (resp) {
+                    console.log("Telegram account unlinked successfully:", resp.data);
+                    res.status(200).json("Telegram account unlinked successfully");
+                },
+                // handle errors on unlinking
+                function (error) {
+                    console.error("Error unlinking Telegram account:", error);
+                    if (error.response) {
+                        // service responded with a status code
+                        res.status(error.response.status).json(error.response.data);
+                    } else if (error.request) {
+                        // no response received
+                        console.error("No response received:", error.request);
+                        res.status(500).json("Service non responsive");
+                    } else {
+                        console.error("Error message:", error.message);
+                        res.status(500).json("Error: " + error.message);
+                    }
+                },
+            );
+        },
+        // handle errors on retrieving user info
+        function (error) {
+            console.error("Error retrieving user info:", error);
+            if (error.response) {
+                // service responded with a status code
+                res.status(error.response.status).json(error.response.data);
+            } else if (error.request) {
+                // no response received
+                console.error("No response received:", error.request);
+                res.status(500).json("Service non responsive");
+            } else {
+                console.error("Error message:", error.message);
+                res.status(500).json("Error: " + error.message);
+            }
+        },
+    );
+};
+
 module.exports = {
     login,
     signup,
     telegram_link_account,
+    telegram_unlink_account,
 };

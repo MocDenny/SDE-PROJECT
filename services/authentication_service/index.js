@@ -1,7 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 // controller import
-const { login, signup, telegram_link_account } = require("./controllers.js");
+const {
+    login,
+    signup,
+    telegram_link_account,
+    telegram_unlink_account,
+} = require("./controllers.js");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 
@@ -35,6 +40,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.post("/login", login);
 app.post("/signup", signup);
 app.post("/telegram_link", telegram_link_account);
+app.post("/telegram_unlink", telegram_unlink_account);
 
 app.listen(process.env.AUTH_PORT, function () {
     console.log(`Service listening on port ${process.env.AUTH_PORT}`);

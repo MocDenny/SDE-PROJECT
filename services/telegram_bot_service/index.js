@@ -12,6 +12,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const token = process.env.BOT_TOKEN;
 const bot = new TelegramBot(token, { polling: true });
 
+// /start command
 bot.onText(/^\/start$/, (msg) => {
     const chatId = msg.chat.id;
     const telegramUserId = msg.from.id;
@@ -21,7 +22,7 @@ bot.onText(/^\/start$/, (msg) => {
             if (email) {
                 bot.sendMessage(
                     chatId,
-                    `Your email associated with this Telegram account is: ${email}`,
+                    `Hi! This Telegram account is already linked to user '${email}'. To learn more about using the Meal Planner bot, use the /help command. To unlink your account use the /unlink command.`,
                 );
             } else {
                 bot.sendMessage(
@@ -36,6 +37,7 @@ bot.onText(/^\/start$/, (msg) => {
         });
 });
 
+// /start <token> command
 bot.onText(/^\/start (.+)$/, (msg, match) => {
     // 'msg' is the received Message from Telegram
     // 'match' is the result of executing the regexp above on the text content
@@ -73,13 +75,7 @@ bot.onText(/^\/start (.+)$/, (msg, match) => {
     );
 });
 
-// bot.on("message", (msg) => {
-//     const chatId = msg.chat.id;
-//     const messageText = msg.text;
-
-//     bot.sendMessage(chatId, "Bot Test successful");
-// });
-
+// /test command with inline keyboard
 bot.onText(/\/test/, (msg) => {
     const chatId = msg.chat.id;
 
@@ -121,6 +117,7 @@ bot.on("callback_query", (callbackQuery) => {
     });
 });
 
+// function to get user data from user_data_service by telegramUserId
 function getUserDataByTelegramId(telegramUserId) {
     return axios
         .get(
@@ -134,28 +131,83 @@ function getUserDataByTelegramId(telegramUserId) {
             }
         })
         .catch((error) => {
+            // check the status code of the response
             if (error.response) {
-                throw new Error(`Errore: ${error.response.data}`);
-            } else if (error.request) {
-                throw new Error("Il servizio non ha risposto. Riprova più tardi.");
+                if (error.response.status === 403) {
+                    return null; // user not found
+                } else {
+                    throw new Error(`Error: ${error.response.data}`);
+                }
             } else {
-                throw new Error(`Errore: ${error.message}`);
+                throw new Error(`Error: ${error.message}`);
             }
         });
 }
 
-bot.onText(/\/get_user/, (msg) => {
+// unlink command
+bot.onText(/^\/(unlink|stop)$/, (msg) => {
     const chatId = msg.chat.id;
     const telegramUserId = msg.from.id;
 
+    // before unlinking, check if the user is linked
     getUserDataByTelegramId(telegramUserId)
         .then((email) => {
-            bot.sendMessage(chatId, `L'email associata al tuo account è: ${email}`);
+            if (email) {
+                unlinkTelegramUser(telegramUserId).then((successMessage) => {
+                    bot.sendMessage(chatId, successMessage);
+                });
+            } else {
+                bot.sendMessage(chatId, "This Telegram account is not linked to any user.");
+            }
         })
         .catch((error) => {
-            bot.sendMessage(chatId, error.message);
+            bot.sendMessage(chatId, "An error occurred while unlinking your account.");
         });
 });
+
+// monitor blocking/unblocking of the bot
+bot.on("my_chat_member", (update) => {
+    const chatId = update.chat.id;
+    const telegramUserId = update.from.id;
+    const newStatus = update.new_chat_member.status;
+
+    if (newStatus === "kicked") {
+        console.log(`User ${telegramUserId} blocked the bot.`);
+        unlinkTelegramUser(telegramUserId)
+            .then((successMessage) => {
+                console.log(
+                    `Account unlinking successful for user ${telegramUserId} after blocking the bot.`,
+                );
+            })
+            .catch((error) => {
+                console.log(
+                    `Error while unlinking account for user ${telegramUserId} after blocking the bot: ${error.message}`,
+                );
+            });
+    } else if (newStatus === "member") {
+        console.log(`User ${telegramUserId} unblocked or restarted the bot.`);
+    }
+});
+
+// utility function to unlink Telegram user
+function unlinkTelegramUser(telegramUserId) {
+    return axios
+        .post(`http://${process.env.AUTH_CONTAINER}:${process.env.AUTH_PORT}/telegram_unlink`, {
+            telegramUserId: telegramUserId,
+        })
+        .then(() => {
+            return "Account successfully unlinked.";
+        })
+        .catch((error) => {
+            if (error.response) {
+                throw new Error(`Error: ${error.response.data}`);
+            } else if (error.request) {
+                throw new Error("The service did not respond. Please try again later.");
+            } else {
+                throw new Error(`Error: ${error.message}`);
+            }
+        });
+}
 
 app.listen(process.env.BOT_PORT, function () {
     console.log(`Service listening on port ${process.env.BOT_PORT}`);
