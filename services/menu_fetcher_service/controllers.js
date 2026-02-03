@@ -3,20 +3,30 @@ const axios = require("axios");
 const get_menu = function (req, res) {
     // error handling
     if (
-        !req.params.min_cal_breakfast ||
-        !req.params.min_cal_other ||
-        !req.params.max_cal_breakfast ||
-        !req.params.max_cal_other ||
-        !req.params.diet ||
-        !req.params.intolerances
+        !req.query.bf_min_cal ||
+        !req.query.bf_max_cal ||
+        !req.query.ld_min_cal ||
+        !req.query.ld_max_cal ||
+        !req.query.diet ||
+        !req.query.intolerances ||
+        !req.query.start_date
     ) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
 
-    const cal_breakfast = [req.params.min_cal_breakfast, req.params.max_cal_breakfast];
-    const cal_other = [req.params.min_cal_other, req.params.max_cal_other];
-    const diet = req.params.diet;
-    const intolerances = req.params.intolerances;
+    const cal_breakfast = [req.query.bf_min_cal, req.query.bf_max_cal];
+    const cal_other = [req.query.ld_min_cal, req.query.ld_max_cal];
+    const diet = req.query.diet;
+    const intolerances = req.query.intolerances;
+    const start_date = new Date(req.query.start_date);
+
+    // Ensure start_date is valid
+    if (isNaN(start_date)) {
+        return res.status(400).json("Error: Invalid start_date format");
+    }
+
+    // Set start_date to midnight UTC
+    start_date.setUTCHours(0, 0, 0, 0);
 
     // records of the found recipes to fill
     let breakfast_list = [];
@@ -37,7 +47,14 @@ const get_menu = function (req, res) {
     // 1. send requests for lunch & dinner
     axios({
         method: "get",
-        url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes/main_course/${cal_other[0]}/${cal_other[1]}/${diet}/${intolerances}/28`,
+        url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes/main_course`,
+        params: {
+            min_cal: cal_other[0],
+            max_cal: cal_other[1],
+            diet: diet,
+            intolerances: intolerances,
+            number: 28,
+        },
     }).then(function (resp) {
         for (const result of resp.data) {
             lunch_din_list.push(result);
@@ -47,7 +64,14 @@ const get_menu = function (req, res) {
 
         axios({
             method: "get",
-            url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes/breakfast/${cal_breakfast[0]}/${cal_breakfast[1]}/${diet}/${intolerances}/14`,
+            url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes/breakfast`,
+            params: {
+                min_cal: cal_breakfast[0],
+                max_cal: cal_breakfast[1],
+                diet: diet,
+                intolerances: intolerances,
+                number: 14,
+            },
         }).then(function (resp) {
             for (const result of resp.data) {
                 breakfast_list.push(result);
@@ -72,16 +96,26 @@ const get_menu = function (req, res) {
                 lunch_din_list.sort(compare_cal);
                 // if there are not enough recipes: repeat them
                 const arr_length = lunch_din_list.length;
+                let dates = [];
                 for (let i = 0; i < 14; i++) {
+                    // Calculate the date for the current day
+                    const current_date = new Date(start_date);
+                    current_date.setUTCDate(start_date.getUTCDate() + i);
+
                     let day = {
+                        day: current_date,
                         breakfast: breakfast_list[i % breakfast_list.length],
                         lunch: lunch_din_list[Math.abs((arr_length - 1 - i) % arr_length)],
                         dinner: lunch_din_list[i % arr_length],
                     };
                     if (i < 7) {
                         plan_1.push(day);
+                        dates.push(current_date); // Save the date for reuse
                     } else {
-                        plan_2.push(day);
+                        plan_2.push({
+                            ...day,
+                            day: dates[i - 7], // Reuse the date from the first plan
+                        });
                     }
                 }
                 res.status(200).json({

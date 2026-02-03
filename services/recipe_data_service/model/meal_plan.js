@@ -7,6 +7,7 @@ const planSchema = new Schema(
         // for the 7 days
         menu: [
             {
+                day: { type: Date, required: true },
                 breakfast: { type: mongoose.Schema.ObjectId, ref: "Recipe", required: true },
                 lunch: { type: mongoose.Schema.ObjectId, ref: "Recipe", required: true },
                 dinner: { type: mongoose.Schema.ObjectId, ref: "Recipe", required: true },

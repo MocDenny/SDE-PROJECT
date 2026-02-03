@@ -48,7 +48,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.post("/user", post_user);
 app.get("/user", get_user_by_telegram_data);
 app.get("/user/:email/", get_user);
-app.get("/user/pref/:email", get_user_pref);
+app.get("/user/:email/preferences", get_user_pref);
 app.patch("/user/:email", patch_user);
 
 app.listen(process.env.USER_DATA_PORT, function () {

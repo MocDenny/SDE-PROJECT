@@ -1,28 +1,21 @@
 const get_meal_plan = function (req, res) {
     // error handling
-    if (!req.params.email || !req.params.calories) {
+    if (!req.query.email || !req.query.calories || !req.query.start_date) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
     // who made the request?
-    const email = req.params.email;
-    const calories = req.params.calories;
-
-    // 1. call to get calories division and research filters
-    const handle_errors = function (error) {
-        if (error.response) {
-            // service responded with a status code
-            res.status(error.response.status).json(error.response.data);
-        } else if (error.request) {
-            // no response received
-            res.status(500).json("Service non responsive");
-        } else {
-            res.status(500).json("Error: " + error.message);
-        }
-    };
+    const email = req.query.email;
+    const calories = req.query.calories;
+    const start_date = req.query.start_date;
 
     axios({
         method: "get",
-        url: `http://${process.env.NUTRITION_GOALS_CONTAINER}:${process.env.NUTRITION_GOALS_PORT}/goals/${email}/${calories}`,
+        url: `http://${process.env.NUTRITION_GOALS_CONTAINER}:${process.env.NUTRITION_GOALS_PORT}/goals`,
+        params: {
+            email: email,
+            calories: calories,
+            startDate: startDate,
+        },
     }).then(function (resp) {
         // 2. fetch 2 meal plans
         const cal_per_meal = resp.data.cal_per_meal;
@@ -31,7 +24,16 @@ const get_meal_plan = function (req, res) {
 
         axios({
             method: "get",
-            url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu/${cal_per_meal[0].min}/${cal_per_meal[0].max}/${cal_per_meal[1].min}/${cal_per_meal[1].max}/${diet}/${intolerances}`,
+            url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu`,
+            params: {
+                bf_min_cal: cal_per_meal[0].min,
+                bf_max_cal: cal_per_meal[0].max,
+                ld_min_cal: cal_per_meal[1].min,
+                ld_max_cal: cal_per_meal[1].max,
+                diet: diet,
+                intolerances: intolerances,
+                start_date: start_date,
+            },
         }).then(function (resp) {
             // 3. return 2 meal plans for the week
             res.status(200).json(resp.data);
@@ -58,6 +60,19 @@ const save_meal_plan = function (req, res) {
     }).then(function (resp) {
         res.status(201).json(resp.data);
     }, handle_errors);
+};
+
+// 1. call to get calories division and research filters
+const handle_errors = function (error) {
+    if (error.response) {
+        // service responded with a status code
+        res.status(error.response.status).json(error.response.data);
+    } else if (error.request) {
+        // no response received
+        res.status(500).json("Service non responsive");
+    } else {
+        res.status(500).json("Error: " + error.message);
+    }
 };
 
 module.exports = { get_meal_plan, save_meal_plan };
