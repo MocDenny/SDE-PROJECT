@@ -1,6 +1,19 @@
 const axios = require("axios");
+const qs = require("qs");
+
+// Configura un'istanza personalizzata di Axios
+const axiosInstance = axios.create({
+    paramsSerializer: (params) => {
+        return qs.stringify(params, {
+            encode: false, // Non codificare i caratteri speciali
+            arrayFormat: "comma", // Serializza gli array come stringhe separate da virgola
+        });
+    },
+});
 
 const get_menu = function (req, res) {
+    console.log("Called /menu with URL: " + req.url);
+    console.log("Query params: ", req.query);
     // error handling
     if (
         !req.query.bf_min_cal ||
@@ -8,16 +21,37 @@ const get_menu = function (req, res) {
         !req.query.ld_min_cal ||
         !req.query.ld_max_cal ||
         !req.query.diet ||
-        !req.query.intolerances ||
+        req.query.intolerances === undefined ||
         !req.query.start_date
     ) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
 
+    console.log(
+        "Parameters received: " +
+            req.query.bf_min_cal +
+            ", " +
+            req.query.bf_max_cal +
+            ", " +
+            req.query.ld_min_cal +
+            ", " +
+            req.query.ld_max_cal +
+            ", " +
+            req.query.diet +
+            ", " +
+            JSON.stringify(req.query.intolerances) +
+            ", " +
+            req.query.start_date,
+    );
+
     const cal_breakfast = [req.query.bf_min_cal, req.query.bf_max_cal];
     const cal_other = [req.query.ld_min_cal, req.query.ld_max_cal];
     const diet = req.query.diet;
-    const intolerances = req.query.intolerances;
+
+    console.log(
+        "Optional parameters: diet: " + diet + ", intolerances: " + JSON.stringify(intolerances),
+    );
+
     const start_date = new Date(req.query.start_date);
 
     // Ensure start_date is valid
@@ -45,7 +79,7 @@ const get_menu = function (req, res) {
     };
 
     // 1. send requests for lunch & dinner
-    axios({
+    axiosInstance({
         method: "get",
         url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes/main_course`,
         params: {
@@ -62,7 +96,7 @@ const get_menu = function (req, res) {
 
         // fetch possible breakfasts
 
-        axios({
+        axiosInstance({
             method: "get",
             url: `http://${process.env.RECIPE_ADAPTER_CONTAINER}:${process.env.RECIPE_ADAPTER_PORT}/recipes/breakfast`,
             params: {

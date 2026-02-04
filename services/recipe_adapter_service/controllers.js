@@ -1,29 +1,52 @@
 const axios = require("axios");
 
 const get_recipes = function (req, res) {
+    console.log("Called /recipes with URL: " + req.url);
     // error handling
     if (
         !req.params.type ||
         !req.query.min_cal ||
         !req.query.max_cal ||
         !req.query.diet ||
-        !req.query.intolerances ||
+        req.query.intolerances === undefined ||
         !req.query.number
     ) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
+
+    const type = req.params.type;
+    const min_cal = req.query.min_cal;
+    const max_cal = req.query.max_cal;
+    const diet = req.query.diet;
+    const intolerances = req.query.intolerances;
+    const number = req.query.number;
+
+    console.log(
+        "Parameters received: " +
+            type +
+            ", " +
+            min_cal +
+            ", " +
+            max_cal +
+            ", " +
+            diet +
+            ", " +
+            JSON.stringify(intolerances) +
+            ", " +
+            number,
+    );
 
     // send requests to Spoonacular
     axios({
         method: "get",
         url: "https://api.spoonacular.com/recipes/complexSearch",
         params: {
-            type: req.params.type,
-            intolerances: req.query.intolerances,
-            diet: req.query.diet,
-            minCalories: req.query.min_cal,
-            maxCalories: req.query.max_cal,
-            number: req.query.number,
+            type: type,
+            intolerances: intolerances,
+            diet: diet,
+            minCalories: min_cal,
+            maxCalories: max_cal,
+            number: number,
             sort: "random",
             fillIngredients: true,
             apiKey: process.env.API_KEY,
@@ -45,7 +68,7 @@ const get_recipes = function (req, res) {
                 }
                 recipes.push({
                     name: recipe.title,
-                    type: req.params.type,
+                    type: type,
                     calories: recipe.nutrition.nutrients[0].amount,
                     ingredients: ingredient_list,
                 });

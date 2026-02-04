@@ -1,44 +1,106 @@
+const axios = require("axios");
+const qs = require("qs");
+
+// Configura un'istanza personalizzata di Axios
+const axiosInstance = axios.create({
+    paramsSerializer: (params) => {
+        return qs.stringify(params, {
+            encode: false, // Non codificare i caratteri speciali
+            arrayFormat: "comma", // Serializza gli array come stringhe separate da virgola
+        });
+    },
+});
+
 const get_meal_plan = function (req, res) {
+    console.log("Called /plan");
+
     // error handling
     if (!req.query.email || !req.query.calories || !req.query.start_date) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
+
+    console.log(
+        "Parameters received: " +
+            req.query.email +
+            ", " +
+            req.query.calories +
+            ", " +
+            req.query.start_date,
+    );
+
     // who made the request?
     const email = req.query.email;
     const calories = req.query.calories;
     const start_date = req.query.start_date;
 
-    axios({
+    // get possible research parameters in the request
+    let diet = req.query.diet;
+    // intolerances can be:
+    //  - not present in the request -> remains undefined
+    //  - present but empty -> remains an empty string
+    //  - present and non-empty (comma separated strings) -> becomes an array of strings
+    let intolerances =
+        req.query.intolerances === ""
+            ? ""
+            : req.query.intolerances
+              ? req.query.intolerances.split(",").map((item) => item.trim())
+              : undefined;
+    console.log(
+        "Optional parameters: diet: " + diet + ", intolerances: " + JSON.stringify(intolerances),
+    );
+
+    axiosInstance({
         method: "get",
         url: `http://${process.env.NUTRITION_GOALS_CONTAINER}:${process.env.NUTRITION_GOALS_PORT}/goals`,
         params: {
             email: email,
             calories: calories,
-            startDate: startDate,
+            diet: diet,
+            intolerances: intolerances,
         },
-    }).then(function (resp) {
-        // 2. fetch 2 meal plans
-        const cal_per_meal = resp.data.cal_per_meal;
-        const diet = resp.data.diet;
-        const intolerances = resp.data.intolerances;
+    }).then(
+        function (resp) {
+            // 2. fetch 2 meal plans
+            const cal_per_meal = resp.data.cal_per_meal;
+            const diet = resp.data.diet;
+            let intolerances = resp.data.intolerances;
 
-        axios({
-            method: "get",
-            url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu`,
-            params: {
-                bf_min_cal: cal_per_meal[0].min,
-                bf_max_cal: cal_per_meal[0].max,
-                ld_min_cal: cal_per_meal[1].min,
-                ld_max_cal: cal_per_meal[1].max,
-                diet: diet,
-                intolerances: intolerances,
-                start_date: start_date,
-            },
-        }).then(function (resp) {
-            // 3. return 2 meal plans for the week
-            res.status(200).json(resp.data);
-        }, handle_errors);
-    }, handle_errors);
+            console.log(
+                "Retrieved nutrition goals: " +
+                    JSON.stringify(cal_per_meal) +
+                    ", " +
+                    diet +
+                    ", " +
+                    JSON.stringify(intolerances),
+            );
+
+            // if intolerances is an empty array, convert to empty string for the next request
+            if (Array.isArray(intolerances) && intolerances.length === 0) {
+                intolerances = "";
+            }
+
+            axiosInstance({
+                method: "get",
+                url: `http://${process.env.MENU_FETCHER_CONTAINER}:${process.env.MENU_FETCHER_PORT}/menu`,
+                params: {
+                    bf_min_cal: cal_per_meal[0].min,
+                    bf_max_cal: cal_per_meal[0].max,
+                    ld_min_cal: cal_per_meal[1].min,
+                    ld_max_cal: cal_per_meal[1].max,
+                    diet: diet,
+                    intolerances: intolerances,
+                    start_date: start_date,
+                },
+            }).then(
+                function (resp) {
+                    // 3. return 2 meal plans for the week
+                    res.status(200).json(resp.data);
+                },
+                (error) => handle_errors(error, res),
+            );
+        },
+        (error) => handle_errors(error, res),
+    );
 };
 
 const save_meal_plan = function (req, res) {
@@ -57,13 +119,16 @@ const save_meal_plan = function (req, res) {
             plan: plan,
             email: email,
         },
-    }).then(function (resp) {
-        res.status(201).json(resp.data);
-    }, handle_errors);
+    }).then(
+        function (resp) {
+            res.status(201).json(resp.data);
+        },
+        (error) => handle_errors(error, res),
+    );
 };
 
 // 1. call to get calories division and research filters
-const handle_errors = function (error) {
+const handle_errors = function (error, res) {
     if (error.response) {
         // service responded with a status code
         res.status(error.response.status).json(error.response.data);
