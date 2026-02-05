@@ -131,27 +131,6 @@ const save_meal_plan = function (req, res) {
             }, handle_errors_and_respond);
         }, handle_errors_and_respond);
     });
-
-    // contact user data service: retrieve user and save plan
-    /*
-    axios({
-        method: "get",
-        url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user/${email}`,
-    }).then(function (resp) {
-        const account = resp.data;
-        axios({
-            method: "post",
-            url: "http://localhost:3004/menu",
-            params: {
-                cal_per_meal: cal_per_meal,
-                diet: diet,
-                intolerances: intolerances,
-            },
-        }).then(function (resp) {
-            res.status(201).json(resp.data);
-        }, handle_errors);
-    }, handle_errors);
-    */
 };
 
 module.exports = { get_meal_plan, save_meal_plan };
