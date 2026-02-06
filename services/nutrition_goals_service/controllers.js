@@ -1,13 +1,17 @@
 const axios = require("axios");
 
 const get_info = function (req, res) {
+    console.log("Called /goals with URL: " + req.url);
+
     // error handling
-    if (!req.params.email || !req.params.calories) {
+    if (!req.query.email || !req.query.calories) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
     }
+
+    console.log("Parameters received: " + req.query.email + ", " + req.query.calories);
     // who made the request?
-    const email = req.params.email;
-    const cal = req.params.calories;
+    const email = req.query.email;
+    const cal = req.query.calories;
     // divide by calories in order (breakfast, lunch & dinner)
     const cal_per_meal = [
         { min: 0.25 * cal, max: 0.3 * cal },
@@ -15,14 +19,28 @@ const get_info = function (req, res) {
     ];
 
     // get possible research parameters in the request
-    let diet = req.params.diet;
-    let intolerances = req.params.intolerances;
+    let diet = req.query.diet;
+    // intolerances can be:
+    //  - not present in the request -> remains undefined
+    //  - present but empty -> becomes an empty array
+    //  - present and non-empty (comma separated strings) -> becomes an array of strings
+    let intolerances =
+        req.query.intolerances === ""
+            ? []
+            : req.query.intolerances
+              ? req.query.intolerances.split(",").map((item) => item.trim())
+              : undefined;
+    console.log(
+        "Optional parameters: diet: " + diet + ", intolerances: " + JSON.stringify(intolerances),
+    );
+
     // retrieve user info if necessary
     if (!diet || !intolerances) {
+        console.log("Retrieving user preferences (diet & intolerances)from user data service...");
         // request info from adapter
         axios({
             method: "get",
-            url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user/pref/${email}`,
+            url: `http://${process.env.USER_DATA_CONTAINER}:${process.env.USER_DATA_PORT}/user/${email}/preferences`,
             params: {
                 email: email,
             },
@@ -34,6 +52,9 @@ const get_info = function (req, res) {
                 if (!intolerances) {
                     intolerances = resp.data.intolerances;
                 }
+                console.log(
+                    "Retrieved user preferences: " + diet + ", " + JSON.stringify(intolerances),
+                );
                 // return
                 res.status(200).json({
                     cal_per_meal: cal_per_meal,

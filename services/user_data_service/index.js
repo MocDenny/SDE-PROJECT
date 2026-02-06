@@ -10,6 +10,8 @@ const {
     get_user,
     get_user_by_token,
     patch_user,
+    get_user_by_telegram_id,
+    get_user_by_telegram_data,
 } = require("./controllers.js");
 
 // database connection
@@ -44,9 +46,9 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // define routes
 app.post("/user", post_user);
+app.get("/user", get_user_by_telegram_data);
 app.get("/user/:email/", get_user);
-app.get("/userByToken/:token", get_user_by_token);
-app.get("/user/pref/:email", get_user_pref);
+app.get("/user/:email/preferences", get_user_pref);
 app.patch("/user/:email", patch_user);
 
 app.listen(process.env.USER_DATA_PORT, function () {

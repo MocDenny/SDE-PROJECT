@@ -167,43 +167,6 @@ const get_user_pref = function (req, res) {
 
 /**
  * @swagger
- * /userByToken/{token}:
- *   get:
- *     summary: Fetch user details by Telegram token
- *     parameters:
- *       - in: path
- *         name: token
- *         required: true
- *         schema:
- *           type: string
- *         description: Telegram link token
- *     responses:
- *       200:
- *         description: User details
- *       400:
- *         description: Missing parameters
- *       403:
- *         description: Token not found
- */
-const get_user_by_token = function (req, res) {
-    // error handling
-    if (!req.params.token) {
-        return res.status(400).json("Error: Request parameters are empty or incomplete");
-    }
-    // find the correct user and return it
-    user_model.findOne({ telegramLinkToken: req.params.token }).then((data) => {
-        if (!data)
-            return res
-                .status(403)
-                .json("Token " + req.params.token + " is not present in the database");
-        else {
-            res.json(data);
-        }
-    });
-};
-
-/**
- * @swagger
  * /user/{email}:
  *   patch:
  *     summary: Updates user information
@@ -249,4 +212,52 @@ const patch_user = function (req, res) {
         });
 };
 
-module.exports = { post_user, get_user_pref, get_user, get_user_by_token, patch_user };
+/**
+ * @swagger
+ * /user:
+ *   get:
+ *     summary: Fetch user details by Telegram ID or token
+ *     parameters:
+ *       - in: query
+ *         name: telegramId
+ *         schema:
+ *           type: string
+ *         description: Telegram user ID
+ *       - in: query
+ *         name: token
+ *         schema:
+ *           type: string
+ *         description: Telegram link token
+ *     responses:
+ *       200:
+ *         description: User details
+ *       400:
+ *         description: Missing parameters
+ *       403:
+ *         description: User not found
+ */
+const get_user_by_telegram_data = function (req, res) {
+    const { telegramId, token } = req.query;
+
+    if (!telegramId && !token) {
+        return res.status(400).json("Error: Missing Telegram ID or token");
+    }
+
+    const query = telegramId ? { telegramUserId: telegramId } : { telegramLinkToken: token };
+
+    user_model.findOne(query).then((data) => {
+        if (!data) {
+            return res.status(403).json("User not found for the provided data");
+        } else {
+            res.json(data);
+        }
+    });
+};
+
+module.exports = {
+    post_user,
+    get_user_pref,
+    get_user,
+    patch_user,
+    get_user_by_telegram_data,
+};

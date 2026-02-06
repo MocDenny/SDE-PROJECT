@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 // controller import
-const { post_recipe, post_plan } = require("./controllers.js");
+const { post_recipe, post_plan, get_plan } = require("./controllers.js");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 
@@ -38,6 +38,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 // define routes
 app.post("/recipe", post_recipe);
 app.post("/plan", post_plan);
+app.get("/plan", get_plan);
 
 app.listen(process.env.RECIPE_DATA_PORT, function () {
     console.log(`Server listening on port ${process.env.RECIPE_DATA_PORT}`);

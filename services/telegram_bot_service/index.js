@@ -1,61 +1,49 @@
-const express = require("express");
-//const cors = require("cors");
-const axios = require("axios");
-
 require("dotenv").config();
 
-const app = express();
-//app.use(cors());
+const {
+    startCommand,
+    startTokenCommand,
+    newPlanCommand,
+    myPlansCommand,
+    unlinkCommand,
+} = require("./commandHandlers.js");
+const { onMyChatMember } = require("./eventHandlers.js");
+const utils = require("./utils.js");
 
-// bot token is in .env file
 const TelegramBot = require("node-telegram-bot-api");
-const token = process.env.BOT_TOKEN;
-const bot = new TelegramBot(token, { polling: true });
+const token = process.env.BOT_TOKEN; // bot token is in .env file
+const bot = new TelegramBot(token, { polling: true, parse_mode: "MarkdownV2" });
 
-bot.onText(/\/start (.+)/, (msg, match) => {
-    // 'msg' is the received Message from Telegram
-    // 'match' is the result of executing the regexp above on the text content
-    // of the message
+// ###################################### COMMANDS ######################################
+// /start command
+bot.onText(/^\/start$/, (msg) => startCommand(bot, msg));
 
-    const telegramUserId = msg.from.id;
-    const token = match[1];
+// /start <token> command
+bot.onText(/^\/start (.+)$/, (msg, match) => startTokenCommand(bot, msg, match));
 
-    // link the chatId with a user account in the database with authentication_service
-    axios({
-        method: "post",
-        url: `http://${process.env.AUTH_CONTAINER}:${process.env.AUTH_PORT}/telegram_link`,
-        data: {
-            telegramUserId: telegramUserId,
-            token: token,
-        },
-    }).then(
-        // elaborate response based on resp code and data
-        function (resp) {
-            // send back success message
-            bot.sendMessage(telegramUserId, "Your Telegram account has been linked successfully!");
-        },
-        function (error) {
-            // send back error message
-            if (error.response) {
-                // service responded with a status code
-                bot.sendMessage(telegramUserId, "Error: " + error.response.data);
-            } else if (error.request) {
-                // no response received
-                bot.sendMessage(telegramUserId, "Service non responsive");
-            } else {
-                bot.sendMessage(telegramUserId, "Error: " + error.message);
-            }
-        },
-    );
+// /newplan command
+bot.onText(/^\/newplan$/, (msg) => newPlanCommand(bot, msg));
+
+// /myplans command
+bot.onText(/^\/myplans$/, (msg) => myPlansCommand(bot, msg));
+
+// unlink command
+bot.onText(/^\/(unlink|stop)$/, (msg) => unlinkCommand(bot, msg));
+
+// ###################################### EVENTS ######################################
+bot.on("polling_error", (error) => {
+    console.error("Polling error:", error);
 });
 
-bot.on("message", (msg) => {
-    const chatId = msg.chat.id;
-    const messageText = msg.text;
+// monitor blocking/unblocking of the bot
+bot.on("my_chat_member", (update) => onMyChatMember(bot, update));
 
-    bot.sendMessage(chatId, "Bot Test successful");
-});
-
-app.listen(process.env.BOT_PORT, function () {
-    console.log(`Service listening on port ${process.env.BOT_PORT}`);
-});
+// Define bot commands for the dropdown menu
+bot.setMyCommands([
+    { command: "start", description: "Get started with the bot" },
+    { command: "help", description: "Get help and instructions" },
+    { command: "newplan", description: "Create a new plan" },
+    { command: "myplans", description: "View your plans" },
+    { command: "grocerylist", description: "Get your grocery list" },
+    { command: "unlink", description: "Unlink your account" },
+]);

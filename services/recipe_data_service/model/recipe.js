@@ -42,9 +42,9 @@ const recipeSchema = new Schema({
     ingredients: [
         {
             amount: { type: Number, required: true },
-            unit: { type: String, required: true },
+            unit: { type: String, required: false },
             name: { type: String, required: true },
-            aisle: { type: String, enum: accepted_aisle, required: true },
+            aisle: { type: String, enum: accepted_aisle, required: false },
         },
     ],
 });
