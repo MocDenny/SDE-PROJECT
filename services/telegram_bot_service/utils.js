@@ -73,9 +73,38 @@ const escapeMarkdownV2 = (text) => {
     return text.replace(/[\\_*\[\]()~`>#+\-=|{}.!]/g, "\\$&");
 };
 
+const askForValidDate = (bot, chatId, message) => {
+    const isValidDate = (dateString) => {
+        const regex = /^\d{4}-\d{2}-\d{2}$/;
+        if (!regex.test(dateString)) {
+            return false;
+        }
+        const date = new Date(dateString);
+        return date instanceof Date && !isNaN(date);
+    };
+
+    return new Promise((resolve) => {
+        const ask = () => {
+            bot.sendMessage(chatId, message).then(() => {
+                bot.once("message", (msg) => {
+                    if (msg.chat.id === chatId) {
+                        if (isValidDate(msg.text)) {
+                            resolve(msg.text);
+                        } else {
+                            bot.sendMessage(chatId, "La data inserita non è valida. Per favore, usa il formato YYYY-MM-DD.").then(ask);
+                        }
+                    }
+                });
+            });
+        };
+        ask();
+    });
+};
+
 module.exports = {
     getUserDataByTelegramId,
     unlinkTelegramUser,
     printMealPlan,
     escapeMarkdownV2,
+    askForValidDate,
 };

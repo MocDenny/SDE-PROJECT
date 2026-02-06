@@ -99,19 +99,14 @@ const newPlanCommand = (bot, msg) => {
                     bot.onReplyToMessage(chatId, caloriesMessage.message_id, (caloriesReply) => {
                         const calories = caloriesReply.text;
 
-                        // Step 2: Ask for start date
-                        bot.sendMessage(
-                            chatId,
-                            "Please enter the start date (format: YYYY-MM-DD):",
-                            {
-                                reply_markup: {
-                                    force_reply: true,
-                                },
-                            },
-                        ).then((dateMessage) => {
-                            bot.onReplyToMessage(chatId, dateMessage.message_id, (dateReply) => {
-                                const startDate = dateReply.text;
-
+                        // Step 2: Ask for start date using the utility function
+                        utils
+                            .askForValidDate(
+                                bot,
+                                chatId,
+                                "Please enter the start date (format: YYYY-MM-DD):",
+                            )
+                            .then((startDate) => {
                                 // Step 3: Ask for diet preference (optional)
                                 const dietOptions = {
                                     reply_markup: {
@@ -198,7 +193,7 @@ const newPlanCommand = (bot, msg) => {
                                         // Step 5: Call the meal planner service
                                         axios({
                                             method: "get",
-                                            url: `http://${process.env.MEAL_PLANNER_CONTAINER}:${process.env.MEAL_PLANNER_PORT}/plan`,
+                                            url: `http://${process.env.MEAL_PLANNER_CONTAINER}:${process.env.MEAL_PLANNER_PORT}/plan/new`,
                                             params: {
                                                 email: email,
                                                 calories: calories,
@@ -326,9 +321,81 @@ const newPlanCommand = (bot, msg) => {
                                     });
                                 });
                             });
-                        });
                     });
                 });
+            } else {
+                bot.sendMessage(
+                    chatId,
+                    "This Telegram account is not linked to any user. Please link your account first using the /start command.",
+                );
+            }
+        })
+        .catch((error) => {
+            bot.sendMessage(chatId, "An error occurred while retrieving your data.");
+        });
+};
+
+const myPlansCommand = (bot, msg) => {
+    const chatId = msg.chat.id;
+    const telegramUserId = msg.from.id;
+
+    utils
+        .getUserDataByTelegramId(telegramUserId)
+        .then((email) => {
+            if (email) {
+                // Ask for start date using the utility function
+                utils
+                    .askForValidDate(
+                        bot,
+                        chatId,
+                        "To search for meal plans in a time range, please enter the start date (format: YYYY-MM-DD):",
+                    )
+                    .then((startDate) => {
+                        // Ask for end date using the utility function
+                        utils
+                            .askForValidDate(
+                                bot,
+                                chatId,
+                                "Now enter the end date (format: YYYY-MM-DD):",
+                            )
+                            .then((endDate) => {
+                                // fetch meal plans from meal planner service
+                                axios({
+                                    method: "get",
+                                    url: `http://${process.env.MEAL_PLANNER_CONTAINER}:${process.env.MEAL_PLANNER_PORT}/plan`,
+                                    params: {
+                                        email: email,
+                                        date_from: startDate || undefined,
+                                        date_to: endDate || undefined,
+                                    },
+                                })
+                                    .then((resp) => {
+                                        const plans = resp.data;
+                                        console.log("Retrieved plans: " + JSON.stringify(plans));
+                                        if (plans.length === 0) {
+                                            bot.sendMessage(
+                                                chatId,
+                                                "You have no saved meal plans in the specified date range.",
+                                            );
+                                        } else {
+                                            plans.forEach((plan) => {
+                                                bot.sendMessage(
+                                                    chatId,
+                                                    utils.printMealPlan(plan.menu, false),
+                                                    { parse_mode: "MarkdownV2" },
+                                                );
+                                            });
+                                        }
+                                    })
+                                    .catch((error) => {
+                                        bot.sendMessage(
+                                            chatId,
+                                            "An error occurred while retrieving your meal plans.",
+                                        );
+                                        console.log("[myPlansCommand] Error: " + error.message);
+                                    });
+                            });
+                    });
             } else {
                 bot.sendMessage(
                     chatId,
@@ -365,7 +432,7 @@ const unlinkCommand = (bot, msg) => {
 module.exports = {
     startCommand,
     startTokenCommand,
-    testInlineKeyboard,
     newPlanCommand,
+    myPlansCommand,
     unlinkCommand,
 };

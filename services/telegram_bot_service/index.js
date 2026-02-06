@@ -3,8 +3,8 @@ require("dotenv").config();
 const {
     startCommand,
     startTokenCommand,
-    testInlineKeyboard,
     newPlanCommand,
+    myPlansCommand,
     unlinkCommand,
 } = require("./commandHandlers.js");
 const { onMyChatMember } = require("./eventHandlers.js");
