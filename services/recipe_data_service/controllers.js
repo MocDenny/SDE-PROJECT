@@ -95,32 +95,68 @@ const post_recipe = function (req, res) {
     });
 };
 
-const post_plan = function (req, res) {
-    // error handling
-    if (!req.body || !req.body.email || !req.body.plan) {
-        return res.status(400).json("Error: Request body is empty or incomplete");
-    }
-    // check, is there already this recipe in the db?
-    meal_plan_model.findOne({ user: email, menu: req.body.plan }).then((data) => {
-        if (data) return res.status(403).json("Meal Plan already present");
-        else {
-            const new_plan = new meal_plan_model({
-                menu: req.body.plan,
-                // for which user?
-                user: req.body.email,
-            });
-
-            // save new meal plan in the db
-            new_plan
-                .save()
-                .then((data) => {
-                    res.json(data);
-                })
-                .catch((err) => {
-                    return res.status(500).json("Saving error" + err);
-                });
+const post_plan = async function (req, res) {
+    console.log("Called POST /plan");
+    try {
+        // Validate request body
+        const { email, plan } = req.body;
+        if (!email || !plan || !Array.isArray(plan)) {
+            return res.status(400).json("Error: Request body is empty or incomplete");
         }
-    });
+
+        // Process each day in the meal plan
+        const processedPlan = await Promise.all(
+            plan.map(async (day) => {
+                const { breakfast, lunch, dinner, day: date } = day;
+
+                // Helper function to save or find a recipe
+                const saveOrFindRecipe = async (recipe) => {
+                    const existingRecipe = await recipe_model.findOne({ name: recipe.name });
+                    if (existingRecipe) {
+                        return existingRecipe._id;
+                    } else {
+                        const newRecipe = new recipe_model(recipe);
+                        const savedRecipe = await newRecipe.save();
+                        return savedRecipe._id;
+                    }
+                };
+
+                // Save or find recipes for breakfast, lunch, and dinner
+                const breakfastId = await saveOrFindRecipe(breakfast);
+                const lunchId = await saveOrFindRecipe(lunch);
+                const dinnerId = await saveOrFindRecipe(dinner);
+
+                return {
+                    day: date,
+                    breakfast: breakfastId,
+                    lunch: lunchId,
+                    dinner: dinnerId,
+                };
+            }),
+        );
+
+        // Check for overlapping meal plans
+        const overlappingPlans = await meal_plan_model.find({
+            user: email,
+            "menu.day": { $in: processedPlan.map((day) => day.day) },
+        });
+
+        if (overlappingPlans.length > 0) {
+            return res.status(403).json("Meal Plan overlaps with an existing plan");
+        }
+
+        // Create and save the new meal plan
+        const new_plan = new meal_plan_model({
+            menu: processedPlan,
+            user: email,
+        });
+
+        const savedPlan = await new_plan.save();
+        return res.status(200).json(savedPlan);
+    } catch (err) {
+        console.error("Error saving meal plan:", err);
+        return res.status(500).json("Internal Server Error");
+    }
 };
 
 module.exports = { post_recipe, post_plan };

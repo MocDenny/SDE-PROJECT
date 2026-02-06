@@ -12,7 +12,7 @@ const axiosInstance = axios.create({
 });
 
 const get_meal_plan = function (req, res) {
-    console.log("Called /plan");
+    console.log("Called GET /plan");
 
     // error handling
     if (!req.query.email || !req.query.calories || !req.query.start_date) {
@@ -104,6 +104,7 @@ const get_meal_plan = function (req, res) {
 };
 
 const save_meal_plan = function (req, res) {
+    console.log("Called POST /plan");
     // error handling
     if (!req.body.plan || !req.body.email) {
         return res.status(400).json("Error: Request Body is empty or incomplete");
@@ -114,14 +115,15 @@ const save_meal_plan = function (req, res) {
 
     axios({
         method: "post",
-        url: "http://localhost:3001/plan",
-        params: {
+        url: `http://${process.env.RECIPE_DATA_CONTAINER}:${process.env.RECIPE_DATA_PORT}/plan`,
+        data: {
             plan: plan,
             email: email,
         },
     }).then(
         function (resp) {
             res.status(201).json(resp.data);
+            console.log("Meal plan saved successfully for user: " + email);
         },
         (error) => handle_errors(error, res),
     );
@@ -132,11 +134,14 @@ const handle_errors = function (error, res) {
     if (error.response) {
         // service responded with a status code
         res.status(error.response.status).json(error.response.data);
+        console.log("Error: " + JSON.stringify(error));
     } else if (error.request) {
         // no response received
         res.status(500).json("Service non responsive");
+        console.log("Service non responsive. Error: ", JSON.stringify(error));
     } else {
         res.status(500).json("Error: " + error.message);
+        console.log("Error: " + JSON.stringify(error));
     }
 };
 

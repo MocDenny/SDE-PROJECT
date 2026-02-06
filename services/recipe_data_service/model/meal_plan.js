@@ -13,8 +13,8 @@ const planSchema = new Schema(
                 dinner: { type: mongoose.Schema.ObjectId, ref: "Recipe", required: true },
             },
         ],
-        // for which user?
-        user: [{ type: mongoose.Schema.ObjectId, ref: "User", required: true }],
+        // associate with user email instead of ObjectId
+        user: { type: String, required: true },
     },
     {
         // saves date of creation and update

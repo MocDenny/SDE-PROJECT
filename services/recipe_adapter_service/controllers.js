@@ -80,11 +80,14 @@ const get_recipes = function (req, res) {
             if (error.response) {
                 // service responded with a status code
                 res.status(error.response.status).json(error.response.data);
+                console.log("Error: " + JSON.stringify(error));
             } else if (error.request) {
                 // no response received
                 res.status(500).json("Spoonacular Service non responsive");
+                console.log("Spoonacular Service non responsive. Error: ", JSON.stringify(error));
             } else {
                 res.status(500).json("Error: " + error.message);
+                console.log("Error: " + JSON.stringify(error));
             }
         },
     );

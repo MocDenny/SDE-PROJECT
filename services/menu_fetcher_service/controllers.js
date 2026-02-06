@@ -47,11 +47,7 @@ const get_menu = function (req, res) {
     const cal_breakfast = [req.query.bf_min_cal, req.query.bf_max_cal];
     const cal_other = [req.query.ld_min_cal, req.query.ld_max_cal];
     const diet = req.query.diet;
-
-    console.log(
-        "Optional parameters: diet: " + diet + ", intolerances: " + JSON.stringify(intolerances),
-    );
-
+    const intolerances = req.query.intolerances;
     const start_date = new Date(req.query.start_date);
 
     // Ensure start_date is valid
@@ -114,6 +110,7 @@ const get_menu = function (req, res) {
             // beware of corner cases, i.e not enough recipes
             if (lunch_din_list.length == 0 || breakfast_list == 0) {
                 res.status(500).json("Error: not enough recipes fitting the search parameters");
+                console.log("Error: not enough recipes fitting the search parameters");
             } else {
                 let plan_1 = [];
                 let plan_2 = [];

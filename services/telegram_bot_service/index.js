@@ -4,6 +4,7 @@ const {
     startCommand,
     startTokenCommand,
     testInlineKeyboard,
+    newPlanCommand,
     unlinkCommand,
 } = require("./commandHandlers.js");
 const { onMyChatMember } = require("./eventHandlers.js");
@@ -11,7 +12,7 @@ const utils = require("./utils.js");
 
 const TelegramBot = require("node-telegram-bot-api");
 const token = process.env.BOT_TOKEN; // bot token is in .env file
-const bot = new TelegramBot(token, { polling: true });
+const bot = new TelegramBot(token, { polling: true, parse_mode: "MarkdownV2" });
 
 // ###################################### COMMANDS ######################################
 // /start command
@@ -22,6 +23,9 @@ bot.onText(/^\/start (.+)$/, (msg, match) => startTokenCommand(bot, msg, match))
 
 // /test command with inline keyboard
 bot.onText(/\/test/, (msg) => testInlineKeyboard(bot, msg));
+
+// /newPlan command
+bot.onText(/^\/newPlan$/, (msg) => newPlanCommand(bot, msg));
 
 // unlink command
 bot.onText(/^\/(unlink|stop)$/, (msg) => unlinkCommand(bot, msg));

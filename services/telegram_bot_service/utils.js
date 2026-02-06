@@ -47,7 +47,35 @@ const unlinkTelegramUser = (telegramUserId) => {
         });
 };
 
+const printMealPlan = (plan, extended) => {
+    console.log("Printing meal plan");
+    let output = "📅 *Weekly meal plan*\n\n";
+
+    plan.forEach((dayPlan) => {
+        const date = new Date(dayPlan.day).toLocaleDateString("en-GB", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+
+        output += `🗓️ *${escapeMarkdownV2(date)}*\n`;
+        output += `🍳 *Breakfast*: ${escapeMarkdownV2(dayPlan.breakfast.name)} \\(${escapeMarkdownV2(dayPlan.breakfast.calories.toString())} kcal\\)\n`;
+        output += `🍴 *Lunch*: ${escapeMarkdownV2(dayPlan.lunch.name)} \\(${escapeMarkdownV2(dayPlan.lunch.calories.toString())} kcal\\)\n`;
+        output += `🍽️ *Dinner*: ${escapeMarkdownV2(dayPlan.dinner.name)} \\(${escapeMarkdownV2(dayPlan.dinner.calories.toString())} kcal\\)\n\n`;
+    });
+
+    return output;
+};
+
+// function to escape MarkdownV2 reserved characters
+const escapeMarkdownV2 = (text) => {
+    return text.replace(/[\\_*\[\]()~`>#+\-=|{}.!]/g, "\\$&");
+};
+
 module.exports = {
     getUserDataByTelegramId,
     unlinkTelegramUser,
+    printMealPlan,
+    escapeMarkdownV2,
 };
