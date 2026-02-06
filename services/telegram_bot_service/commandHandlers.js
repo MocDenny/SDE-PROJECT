@@ -82,23 +82,6 @@ const startTokenCommand = (bot, msg, match) => {
         });
 };
 
-const testInlineKeyboard = (bot, msg) => {
-    const chatId = msg.chat.id;
-
-    const options = {
-        reply_markup: {
-            inline_keyboard: [
-                [
-                    { text: "Ricevi un numero", callback_data: "get_number" },
-                    { text: "Ricevi una lettera", callback_data: "get_letter" },
-                ],
-            ],
-        },
-    };
-
-    bot.sendMessage(chatId, "Scegli un'opzione:", options);
-};
-
 const newPlanCommand = (bot, msg) => {
     const chatId = msg.chat.id;
     const telegramUserId = msg.from.id;
