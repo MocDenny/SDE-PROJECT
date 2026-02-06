@@ -24,9 +24,8 @@ bot.onText(/^\/start (.+)$/, (msg, match) => startTokenCommand(bot, msg, match))
 // /newplan command
 bot.onText(/^\/newplan$/, (msg) => newPlanCommand(bot, msg));
 
-
-// /newPlan command
-bot.onText(/^\/newPlan$/, (msg) => newPlanCommand(bot, msg));
+// /myplans command
+bot.onText(/^\/myplans$/, (msg) => myPlansCommand(bot, msg));
 
 // unlink command
 bot.onText(/^\/(unlink|stop)$/, (msg) => unlinkCommand(bot, msg));
@@ -38,3 +37,13 @@ bot.on("polling_error", (error) => {
 
 // monitor blocking/unblocking of the bot
 bot.on("my_chat_member", (update) => onMyChatMember(bot, update));
+
+// Define bot commands for the dropdown menu
+bot.setMyCommands([
+    { command: "start", description: "Get started with the bot" },
+    { command: "help", description: "Get help and instructions" },
+    { command: "newplan", description: "Create a new plan" },
+    { command: "myplans", description: "View your plans" },
+    { command: "grocerylist", description: "Get your grocery list" },
+    { command: "unlink", description: "Unlink your account" },
+]);
