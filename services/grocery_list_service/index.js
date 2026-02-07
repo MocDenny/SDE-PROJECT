@@ -1,5 +1,5 @@
 const express = require("express");
-//const { } = require("./controllers");
+const { get_grocery_list } = require("./controllers");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
 
@@ -29,7 +29,7 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // define route to get personalized nutrition goals (i.e calories division + diet + intolerances)
-//app.get("/goals/:email/:calories", get_info);
+app.get("/groceryList", get_grocery_list);
 
 app.listen(process.env.GROCERY_LIST_PORT, function () {
     console.log(`Service listening on port ${process.env.GROCERY_LIST_PORT}`);

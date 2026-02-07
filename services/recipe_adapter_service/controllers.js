@@ -61,7 +61,7 @@ const get_recipes = function (req, res) {
                 for (const ing of recipe.missedIngredients) {
                     ingredient_list.push({
                         amount: ing.amount,
-                        unit: ing.unit,
+                        unit: ing.unitShort,
                         name: ing.originalName,
                         aisle: ing.aisle,
                     });
