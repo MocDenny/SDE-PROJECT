@@ -5,6 +5,7 @@ const {
     startTokenCommand,
     newPlanCommand,
     myPlansCommand,
+    groceryListCommand,
     unlinkCommand,
 } = require("./commandHandlers.js");
 const { onMyChatMember } = require("./eventHandlers.js");
@@ -26,6 +27,9 @@ bot.onText(/^\/newplan$/, (msg) => newPlanCommand(bot, msg));
 
 // /myplans command
 bot.onText(/^\/myplans$/, (msg) => myPlansCommand(bot, msg));
+
+// /grocerylist command
+bot.onText(/^\/grocerylist$/, (msg) => groceryListCommand(bot, msg));
 
 // unlink command
 bot.onText(/^\/(unlink|stop)$/, (msg) => unlinkCommand(bot, msg));

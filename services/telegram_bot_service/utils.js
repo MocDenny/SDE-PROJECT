@@ -91,7 +91,10 @@ const askForValidDate = (bot, chatId, message) => {
                         if (isValidDate(msg.text)) {
                             resolve(msg.text);
                         } else {
-                            bot.sendMessage(chatId, "La data inserita non è valida. Per favore, usa il formato YYYY-MM-DD.").then(ask);
+                            bot.sendMessage(
+                                chatId,
+                                "La data inserita non è valida. Per favore, usa il formato YYYY-MM-DD.",
+                            ).then(ask);
                         }
                     }
                 });
@@ -101,10 +104,58 @@ const askForValidDate = (bot, chatId, message) => {
     });
 };
 
+const printGroceryList = (groceryList) => {
+    const aisleEmojis = {
+        "Nut butters, Jams, and Honey": "🍯",
+        "Spices and Seasonings": "🌶️",
+        Cereal: "🥣",
+        Baking: "🧁",
+        "Milk, Eggs, Other Dairy": "🥛",
+        Meat: "🍖",
+        "Alcoholic Beverages": "🍷",
+        "Ethnic Foods": "🍜",
+        Produce: "🥦",
+        "Pasta and Rice": "🍝",
+        "Bakery/Bread": "🍞",
+        Condiments: "🫙",
+        Seafood: "🦞",
+        Beverages: "🧃",
+        Cheese: "🧀",
+        Nuts: "🥜",
+        "Health Foods": "🥗",
+        "Gluten Free": "🌾",
+        Gourmet: "🍽️",
+        "Sweet Snacks": "🍫",
+        "Canned and Jarred": "🥫",
+    };
+
+    let output = "🛒 *Grocery List*\n\n";
+
+    for (const [aisle, products] of Object.entries(groceryList)) {
+        const emoji = aisleEmojis[aisle] || "📂"; // Default emoji if aisle not found
+        output += `${emoji} *${escapeMarkdownV2(aisle)}*\n`;
+
+        products.forEach((product) => {
+            const name = product.name.charAt(0).toUpperCase() + product.name.slice(1);
+            const escapedName = escapeMarkdownV2(name);
+            const roundedAmount = Math.ceil(product.amount * 100) / 100; // Round up to 2 decimal places
+            const escapedAmount = escapeMarkdownV2(roundedAmount.toString());
+            const escapedUnit = escapeMarkdownV2(product.unit);
+
+            output += `\\- ${escapedName}: ${escapedAmount} ${escapedUnit}\n`;
+        });
+
+        output += "\n"; // Add a blank line between aisles
+    }
+
+    return output;
+};
+
 module.exports = {
     getUserDataByTelegramId,
     unlinkTelegramUser,
     printMealPlan,
     escapeMarkdownV2,
     askForValidDate,
+    printGroceryList,
 };

@@ -408,6 +408,78 @@ const myPlansCommand = (bot, msg) => {
         });
 };
 
+const groceryListCommand = (bot, msg) => {
+    const chatId = msg.chat.id;
+    const telegramUserId = msg.from.id;
+
+    utils
+        .getUserDataByTelegramId(telegramUserId)
+        .then((email) => {
+            if (email) {
+                // Ask for start date using the utility function
+                utils
+                    .askForValidDate(
+                        bot,
+                        chatId,
+                        "From which date do you want to see the grocery list? Please enter the start date (format: YYYY-MM-DD):",
+                    )
+                    .then((startDate) => {
+                        // Ask for end date using the utility function
+                        utils
+                            .askForValidDate(
+                                bot,
+                                chatId,
+                                "Now enter the end date (format: YYYY-MM-DD):",
+                            )
+                            .then((endDate) => {
+                                // fetch grocery list from meal planner service
+                                axios({
+                                    method: "get",
+                                    url: `http://${process.env.GROCERY_LIST_CONTAINER}:${process.env.GROCERY_LIST_PORT}/groceryList`,
+                                    params: {
+                                        email: email,
+                                        date_from: startDate,
+                                        date_to: endDate,
+                                    },
+                                })
+                                    .then((resp) => {
+                                        const groceryList = resp.data;
+                                        if (groceryList.length === 0) {
+                                            bot.sendMessage(
+                                                chatId,
+                                                "Your grocery list is currently empty.",
+                                            );
+                                        } else {
+                                            bot.sendMessage(
+                                                chatId,
+                                                utils.printGroceryList(groceryList),
+                                                {
+                                                    parse_mode: "MarkdownV2",
+                                                },
+                                            );
+                                        }
+                                    })
+                                    .catch((error) => {
+                                        bot.sendMessage(
+                                            chatId,
+                                            "An error occurred while retrieving your grocery list.",
+                                        );
+                                        console.log("[groceryListCommand] Error: " + error.message);
+                                    });
+                            });
+                    });
+            } else {
+                bot.sendMessage(
+                    chatId,
+                    "This Telegram account is not linked to any user. Please link your account first using the /start command.",
+                );
+            }
+        })
+        .catch((error) => {
+            bot.sendMessage(chatId, "An error occurred while retrieving your data.");
+        });
+};
+
 const unlinkCommand = (bot, msg) => {
     const chatId = msg.chat.id;
     const telegramUserId = msg.from.id;
@@ -434,5 +506,6 @@ module.exports = {
     startTokenCommand,
     newPlanCommand,
     myPlansCommand,
+    groceryListCommand,
     unlinkCommand,
 };
