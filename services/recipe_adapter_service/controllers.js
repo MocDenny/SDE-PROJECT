@@ -1,5 +1,109 @@
 const axios = require("axios");
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Recipe Retrieval
+ *     description: Endpoints for retrieving recipes based on various criteria
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Recipe:
+ *       type: object
+ *       description: Object representing a recipe
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Name of the recipe
+ *         type:
+ *           type: string
+ *           description: Type of the recipe (e.g., breakfast, lunch, etc.)
+ *         calories:
+ *           type: number
+ *           description: Calories in the recipe
+ *         ingredients:
+ *           type: array
+ *           items:
+ *             type: object
+ *             description: Ingredient object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the ingredient
+ *               aisle:
+ *                 type: string
+ *                 description: Aisle where the ingredient can be found in the store
+ *               amount:
+ *                 type: number
+ *                 description: Amount of the ingredient needed for the recipe
+ *               unit:
+ *                 type: string
+ *                 description: Unit of measurement for the ingredient amount
+ */
+
+/**
+ * @swagger
+ * /recipes/{type}:
+ *   get:
+ *     tags:
+ *       - Recipe Retrieval
+ *     summary: Fetch random recipes from Spoonacular
+ *     description: Retrieves recipes based on user preferences, including type, calorie range, diet, and intolerances.
+ *     parameters:
+ *       - in: path
+ *         name: type
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Type of recipe (e.g., breakfast, main_course)
+ *       - in: query
+ *         name: min_cal
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Minimum calories for the recipe
+ *       - in: query
+ *         name: max_cal
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Maximum calories for the recipe
+ *       - in: query
+ *         name: diet
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User diet preference
+ *       - in: query
+ *         name: intolerances
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User intolerances (comma-separated)
+ *       - in: query
+ *         name: number
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Number of recipes to fetch
+ *     responses:
+ *       200:
+ *         description: Recipes fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Recipe'
+ *       400:
+ *         description: Bad request, missing parameters
+ *       500:
+ *         description: Service error
+ */
+
 const get_recipes = function (req, res) {
     console.log("Called /recipes with URL: " + req.url);
     // error handling

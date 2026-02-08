@@ -13,7 +13,8 @@ const swaggerOptions = {
         info: {
             title: "Meal Planner Service API",
             version: "1.0.0",
-            description: "APIs for generating and saving meal plans",
+            description:
+                "APIs for generating and saving meal plans. <br>This service belongs to the Process Centric Services layer and orchestrates the services involved in meal plan functionalities. Since the Process Centric Services layer is the highest and most abstract layer, this service communicates directly with the client (frontend).",
         },
         servers: [
             {

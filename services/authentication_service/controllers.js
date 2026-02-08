@@ -2,9 +2,55 @@ const axios = require("axios");
 
 /**
  * @swagger
+ * tags:
+ *   - name: User Authentication
+ *     description: Endpoints for user registration, authentication and information retrieval
+ *   - name: Telegram Integration
+ *     description: Endpoints for linking user accounts with Telegram
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     User:
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: User email
+ *         password:
+ *           type: string
+ *           description: User password
+ *         preferences:
+ *           $ref: '#/components/schemas/UserPreferences'
+ *         telegramLinkToken:
+ *           type: string
+ *           description: Unique token for linking with Telegram
+ *         telegramUserId:
+ *           type: string
+ *           description: Telegram user ID if linked
+ *     UserPreferences:
+ *       type: object
+ *       properties:
+ *         diet:
+ *           type: string
+ *           description: Preferred diet
+ *         intolerances:
+ *           type: array
+ *           description: List of intolerances
+ *           items:
+ *             type: string
+ */
+
+/**
+ * @swagger
  * /login:
  *   post:
+ *     tags:
+ *       - User Authentication
  *     summary: Authenticate a user
+ *     description: Authenticates a user with email and password. Returns user details if successful.
  *     requestBody:
  *       required: true
  *       content:
@@ -21,6 +67,10 @@ const axios = require("axios");
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       401:
  *         description: Invalid password
  *       500:
@@ -69,6 +119,8 @@ const login = function (req, res) {
  * @swagger
  * /signup:
  *   post:
+ *     tags:
+ *       - User Authentication
  *     summary: Register a new user
  *     requestBody:
  *       required: true
@@ -94,6 +146,14 @@ const login = function (req, res) {
  *     responses:
  *       201:
  *         description: Signup successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid request
+ *       403:
+ *         description: User already present
  *       500:
  *         description: Service error
  */
@@ -138,7 +198,10 @@ const signup = function (req, res) {
  * @swagger
  * /telegram_link:
  *   post:
+ *     tags:
+ *       - Telegram Integration
  *     summary: Link a Telegram account to a user
+ *     description: Links a Telegram user ID to an existing user account using a token.
  *     requestBody:
  *       required: true
  *       content:
@@ -155,6 +218,12 @@ const signup = function (req, res) {
  *     responses:
  *       200:
  *         description: Telegram account linked successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request, missing parameters
  *       500:
  *         description: Service error
  */
@@ -227,7 +296,10 @@ const telegram_link_account = function (req, res) {
  * @swagger
  * /telegram_unlink:
  *   post:
+ *     tags:
+ *       - Telegram Integration
  *     summary: Unlink a Telegram account from a user
+ *     description: Unlinks a Telegram user ID from an existing user account.
  *     requestBody:
  *       required: true
  *       content:
@@ -241,6 +313,12 @@ const telegram_link_account = function (req, res) {
  *     responses:
  *       200:
  *         description: Telegram account unlinked successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Bad request, missing parameters
  *       500:
  *         description: Service error
  */

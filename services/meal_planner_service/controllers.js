@@ -11,6 +11,153 @@ const axiosInstance = axios.create({
     },
 });
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Meal Plan Generation
+ *     description: Endpoints for generating meal plans
+ *   - name: Meal Plan Management
+ *     description: Endpoints for saving and retrieving meal plans
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     MealPlanOptions:
+ *       type: object
+ *       description: Object containing two meal plan options for the week
+ *       properties:
+ *         plan_1:
+ *           type: object
+ *           $ref: '#/components/schemas/Menu'
+ *         plan_2:
+ *           type: object
+ *           $ref: '#/components/schemas/Menu'
+ *     Menu:
+ *       type: array
+ *       description: List of daily menus for the week
+ *       items:
+ *         type: object
+ *         description: Object representing the meals for a single day
+ *         properties:
+ *           day:
+ *             type: string
+ *             format: date
+ *             description: Date of the meal
+ *           breakfast:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *           lunch:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *           dinner:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *     Recipe:
+ *       type: object
+ *       description: Object representing a recipe
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Name of the recipe
+ *         type:
+ *           type: string
+ *           description: Type of the recipe (e.g., breakfast, lunch, etc.)
+ *         calories:
+ *           type: number
+ *           description: Calories in the recipe
+ *         ingredients:
+ *           type: array
+ *           items:
+ *             type: object
+ *             description: Ingredient object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the ingredient
+ *               aisle:
+ *                 type: string
+ *                 description: Aisle where the ingredient can be found in the store
+ *               amount:
+ *                 type: number
+ *                 description: Amount of the ingredient needed for the recipe
+ *               unit:
+ *                 type: string
+ *                 description: Unit of measurement for the ingredient amount
+ *     MealPlanList:
+ *       type: array
+ *       description: List of meal plans associated with a user
+ *       items:
+ *         $ref: '#/components/schemas/MealPlan'
+ *     MealPlan:
+ *       type: object
+ *       description: Object representing a saved meal plan for a user
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Unique identifier of the meal plan
+ *         user:
+ *           type: string
+ *           description: Email of the user associated with the meal plan
+ *         menu:
+ *           $ref: '#/components/schemas/Menu'
+ */
+
+/**
+ * @swagger
+ * /plan/new:
+ *   get:
+ *     tags:
+ *       - Meal Plan Generation
+ *     summary: Generate two meal plan options for the week
+ *     description: Generates two meal plan options for the week based on user preferences and caloric intake.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User email
+ *       - in: query
+ *         name: calories
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Total daily caloric intake
+ *       - in: query
+ *         name: start_date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for the meal plan
+ *       - in: query
+ *         name: diet
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: User diet preference
+ *       - in: query
+ *         name: intolerances
+ *         required: false
+ *         schema:
+ *           type: array
+ *           items:
+ *             type: string
+ *         description: User intolerances (comma-separated)
+ *     responses:
+ *       200:
+ *         description: Meal plans generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MealPlanOptions'
+ *       400:
+ *         description: Bad request, missing parameters
+ *       500:
+ *         description: Service error
+ */
 const get_meal_plan = function (req, res) {
     console.log("Called GET /plan/new");
 
@@ -103,6 +250,40 @@ const get_meal_plan = function (req, res) {
     );
 };
 
+/**
+ * @swagger
+ * /plan:
+ *   post:
+ *     tags:
+ *       - Meal Plan Management
+ *     summary: Save a meal plan
+ *     description: Saves a meal plan to the database for a user.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
+ *               plan:
+ *                 type: object
+ *                 description: The selected meal plan to save, containing the meals for the week
+ *                 $ref: '#/components/schemas/Menu'
+ *     responses:
+ *       201:
+ *         description: Meal plan saved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MealPlan'
+ *       400:
+ *         description: Bad request, missing parameters
+ *       500:
+ *         description: Service error
+ */
 const save_meal_plan = function (req, res) {
     console.log("Called POST /plan");
     // error handling
@@ -129,6 +310,47 @@ const save_meal_plan = function (req, res) {
     );
 };
 
+/**
+ * @swagger
+ * /plan:
+ *   get:
+ *     tags:
+ *       - Meal Plan Management
+ *     summary: Retrieve saved meal plans
+ *     description: Retrieves saved meal plans for a user within a specified date range.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User email
+ *       - in: query
+ *         name: date_from
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering meal plans
+ *       - in: query
+ *         name: date_to
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering meal plans
+ *     responses:
+ *       200:
+ *         description: Meal plans retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MealPlanList'
+ *       400:
+ *         description: Bad request, missing parameters
+ *       500:
+ *         description: Service error
+ */
 const get_user_plans = function (req, res) {
     console.log("Called GET /plan");
     // error handling

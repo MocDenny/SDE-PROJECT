@@ -20,7 +20,8 @@ const swaggerOptions = {
         info: {
             title: "Recipe Data Service API",
             version: "1.0.0",
-            description: "APIs for managing recipe and meal plan data",
+            description:
+                "APIs for managing recipe and meal plan data in the application database. <br>This service belongs to the Data Services layer and is responsible for managing the application's data related to recipes and meal plans. Since the Data Services layer is the lowest and most concrete layer, this service does not communicate directly with the client (frontend) but is instead called by the Business Logic Services layer when needed.",
         },
         servers: [
             {

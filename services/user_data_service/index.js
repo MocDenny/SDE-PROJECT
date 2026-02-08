@@ -29,7 +29,8 @@ const swaggerOptions = {
         info: {
             title: "User Data Service API",
             version: "1.0.0",
-            description: "APIs to manage users and their preferences",
+            description:
+                "APIs to manage users data. <br>This service belongs to the Data Services layer and is responsible for storing user data in the database. It serves as a foundational service that other services can interact with to retrieve or update user information. Since the Data Services layer is the lowest and most concrete layer, this service does not communicate directly with the client (frontend) but rather provides data to other services that do.",
         },
         servers: [
             {

@@ -5,6 +5,15 @@ const { user_model } = require("./model/user.js");
 
 /**
  * @swagger
+ * tags:
+ *   - name: User Data Management
+ *     description: Endpoints for user creation, update and information retrieval
+ *   - name: Telegram Integration
+ *     description: Endpoints for linking user accounts with Telegram
+ */
+
+/**
+ * @swagger
  * components:
  *   schemas:
  *     User:
@@ -16,36 +25,56 @@ const { user_model } = require("./model/user.js");
  *         password:
  *           type: string
  *           description: User password
+ *         preferences:
+ *           $ref: '#/components/schemas/UserPreferences'
  *         telegramLinkToken:
  *           type: string
  *           description: Unique token for linking with Telegram
- *         preferences:
- *           type: object
- *           properties:
- *             diet:
- *               type: string
- *               description: Preferred diet
- *             intolerances:
- *               type: array
- *               items:
- *                 type: string
- *                 description: List of intolerances
+ *         telegramUserId:
+ *           type: string
+ *           description: Telegram user ID if linked
+ *     UserPreferences:
+ *       type: object
+ *       properties:
+ *         diet:
+ *           type: string
+ *           description: Preferred diet
+ *         intolerances:
+ *           type: array
+ *           description: List of intolerances
+ *           items:
+ *             type: string
  */
 
 /**
  * @swagger
  * /user:
  *   post:
+ *     tags:
+ *       - User Data Management
  *     summary: Creates a new user
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/User'
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: User email
+ *               password:
+ *                 type: string
+ *                 description: User password
+ *               preferences:
+ *                 $ref: '#/components/schemas/UserPreferences'
  *     responses:
  *       200:
  *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Invalid request
  *       403:
@@ -95,6 +124,8 @@ const post_user = function (req, res) {
  * @swagger
  * /user/{email}:
  *   get:
+ *     tags:
+ *       - User Data Management
  *     summary: Fetch details of a user
  *     parameters:
  *       - in: path
@@ -106,6 +137,10 @@ const post_user = function (req, res) {
  *     responses:
  *       200:
  *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Missing parameters
  *       403:
@@ -130,8 +165,10 @@ const get_user = function (req, res) {
 
 /**
  * @swagger
- * /user/pref/{email}:
+ * /user/{email}/preferences:
  *   get:
+ *     tags:
+ *       - User Data Management
  *     summary: Fetch user preferences
  *     parameters:
  *       - in: path
@@ -143,9 +180,13 @@ const get_user = function (req, res) {
  *     responses:
  *       200:
  *         description: User preferences
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UserPreferences'
  *       400:
  *         description: Missing parameters
- *       403:
+ *       404:
  *         description: User not found
  */
 const get_user_pref = function (req, res) {
@@ -157,7 +198,7 @@ const get_user_pref = function (req, res) {
     user_model.findOne({ email: req.params.email }).then((data) => {
         if (!data)
             return res
-                .status(403)
+                .status(404)
                 .json("User " + req.params.email + " is not present in the database");
         else {
             res.json(data.preferences);
@@ -169,6 +210,8 @@ const get_user_pref = function (req, res) {
  * @swagger
  * /user/{email}:
  *   patch:
+ *     tags:
+ *       - User Data Management
  *     summary: Updates user information
  *     parameters:
  *       - in: path
@@ -186,6 +229,10 @@ const get_user_pref = function (req, res) {
  *     responses:
  *       200:
  *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Invalid request
  *       403:
@@ -216,7 +263,9 @@ const patch_user = function (req, res) {
  * @swagger
  * /user:
  *   get:
- *     summary: Fetch user details by Telegram ID or token
+ *     tags:
+ *       - Telegram Integration
+ *     summary: Fetch user details by Telegram ID or link token
  *     parameters:
  *       - in: query
  *         name: telegramId
@@ -231,6 +280,10 @@ const patch_user = function (req, res) {
  *     responses:
  *       200:
  *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
  *       400:
  *         description: Missing parameters
  *       403:

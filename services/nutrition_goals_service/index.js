@@ -13,7 +13,8 @@ const swaggerOptions = {
         info: {
             title: "Nutrition Goals Service API",
             version: "1.0.0",
-            description: "APIs for fetching personalized nutrition goals",
+            description:
+                "APIs for fetching and calculating personalized nutrition goals. <br>This service belongs to the Business Logic Services layer and is responsible for processing user data and preferences to generate nutrition goals. It communicates with the Data Services layer to retrieve user information and preferences, and with the Process Centric Services layer to provide important information for meal plan generation.",
         },
         servers: [
             {

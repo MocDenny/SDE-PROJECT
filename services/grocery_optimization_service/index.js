@@ -13,7 +13,8 @@ const swaggerOptions = {
         info: {
             title: "Grocery Optimization Service API",
             version: "1.0.0",
-            description: "APIs for optimizing grocery lists based on meal plans",
+            description:
+                "APIs for optimizing grocery lists based on meal plans. <br>This service belongs to the Business Logic Services layer and contains the core logic for optimizing grocery lists. It is called by the Grocery List Service to generate optimized grocery lists based on the meal plans created by users. This service does not communicate directly with the client (frontend) but is orchestrated by the Grocery List Service.",
         },
         servers: [
             {

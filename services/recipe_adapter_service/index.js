@@ -13,7 +13,8 @@ const swaggerOptions = {
         info: {
             title: "Recipe Adapter Service API",
             version: "1.0.0",
-            description: "APIs for fetching recipes based on user preferences",
+            description:
+                "APIs for fetching recipes from Spoonacular. <br>This service belongs to the Adapter Services layer and is responsible for interacting with the Spoonacular API to retrieve recipe data based on user preferences. It serves as an adapter that abstracts away the details of the external API and provides a consistent interface for the Business Logic Services layer to consume.",
         },
         servers: [
             {

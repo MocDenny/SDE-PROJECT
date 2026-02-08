@@ -13,7 +13,8 @@ const swaggerOptions = {
         info: {
             title: "Grocery List Service API",
             version: "1.0.0",
-            description: "APIs for managing grocery lists",
+            description:
+                "APIs for managing grocery lists. <br>This service belongs to the Process Centric Services layer and orchestrates the services involved in grocery list functionalities. It communicates directly with the client (frontend) to provide optimized grocery lists based on the meal plans created by users. It calls the Grocery Optimization Service to perform the optimization logic and generate the final grocery list.",
         },
         servers: [
             {

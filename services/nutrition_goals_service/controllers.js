@@ -1,5 +1,90 @@
 const axios = require("axios");
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Nutrition Goals
+ *     description: Endpoints for calculating nutritional goals based on user preferences and caloric intake
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     NutritionalData:
+ *       type: object
+ *       description: Object containing nutritional goals for the user
+ *       properties:
+ *         cal_per_meal:
+ *           type: array
+ *           description: Caloric distribution per meal (breakfast, lunch & dinner)
+ *           items:
+ *             type: object
+ *             description: Object representing the caloric distribution for a single meal
+ *             properties:
+ *               min:
+ *                 type: integer
+ *                 description: Minimum calories for the meal
+ *               max:
+ *                 type: integer
+ *                 description: Maximum calories for the meal
+ *         diet:
+ *           type: string
+ *           description: User diet preference
+ *         intolerances:
+ *           type: array
+ *           description: User intolerances list
+ *           items:
+ *             type: string
+ *             description: A single intolerance
+ */
+
+/**
+ * @swagger
+ * /goals:
+ *   get:
+ *     tags:
+ *       - Nutrition Goals
+ *     summary: Calculates nutritional goals
+ *     description: Completes the data provided in the request with user preferences (if not provided) and returns the nutrition goals for the user, including caloric distribution per meal, diet preference, and intolerances.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User email
+ *       - in: query
+ *         name: calories
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Total daily caloric intake
+ *       - in: query
+ *         name: diet
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: User diet preference
+ *       - in: query
+ *         name: intolerances
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: User intolerances (comma-separated)
+ *     responses:
+ *       200:
+ *         description: Nutrition goals fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/NutritionalData'
+ *       400:
+ *         description: Bad request, missing parameters
+ *       500:
+ *         description: Service error
+ */
+
 const get_info = function (req, res) {
     console.log("Called /goals with URL: " + req.url);
 

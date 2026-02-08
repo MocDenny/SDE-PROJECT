@@ -1,5 +1,101 @@
 const axios = require("axios");
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Grocery List Management
+ *     description: Endpoints for managing grocery lists.
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     GroceryList:
+ *       type: object
+ *       description: Object representing an optimized grocery list
+ *       properties:
+ *         aisle1Name:
+ *           type: array
+ *           description: Array of the products in the aisle
+ *           items:
+ *             type: object
+ *             description: Ingredient object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the ingredient
+ *               amount:
+ *                 type: number
+ *                 description: Total amount of the ingredient needed across all recipes
+ *               unit:
+ *                 type: string
+ *                 description: Unit of measurement for the ingredient amount
+ *               aisle:
+ *                 type: string
+ *                 description: Aisle where the ingredient can be found in the store
+ *         aisle2Name:
+ *           type: array
+ *           description: Array of the products in the aisle
+ *           items:
+ *             type: object
+ *             description: Ingredient object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the ingredient
+ *               amount:
+ *                 type: number
+ *                 description: Total amount of the ingredient needed across all recipes
+ *               unit:
+ *                 type: string
+ *                 description: Unit of measurement for the ingredient amount
+ *               aisle:
+ *                 type: string
+ *                 description: Aisle where the ingredient can be found in the store
+ */
+
+/**
+ * @swagger
+ * /groceryList:
+ *   get:
+ *     tags:
+ *      - Grocery List Management
+ *     summary: Generate a new grocery list for a date range
+ *     description: Returns a grocery list based on saved meal plans within a specified date range.
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User email
+ *       - in: query
+ *         name: date_from
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for filtering meal plans
+ *       - in: query
+ *         name: date_to
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: End date for filtering meal plans
+ *     responses:
+ *       200:
+ *         description: Grocery list fetched successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/GroceryList'
+ *       400:
+ *         description: Bad request, missing parameters
+ *       500:
+ *         description: Service error
+ */
 const get_grocery_list = function (req, res) {
     console.log("Called GET /groceryList");
 

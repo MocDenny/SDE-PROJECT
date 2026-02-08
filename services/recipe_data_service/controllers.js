@@ -4,68 +4,105 @@ const { meal_plan_model } = require("./model/meal_plan.js");
 
 /**
  * @swagger
+ * tags:
+ *   - name: Food Data Management
+ *     description: Endpoints for saving and retrieving food related data to the application database.
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Menu:
+ *       type: array
+ *       description: List of daily menus for the week
+ *       items:
+ *         type: object
+ *         description: Object representing the meals for a single day
+ *         properties:
+ *           day:
+ *             type: string
+ *             format: date
+ *             description: Date of the meal
+ *           breakfast:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *           lunch:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *           dinner:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *     Recipe:
+ *       type: object
+ *       description: Object representing a recipe
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Name of the recipe
+ *         type:
+ *           type: string
+ *           description: Type of the recipe (e.g., breakfast, lunch, etc.)
+ *         calories:
+ *           type: number
+ *           description: Calories in the recipe
+ *         ingredients:
+ *           type: array
+ *           items:
+ *             type: object
+ *             description: Ingredient object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the ingredient
+ *               aisle:
+ *                 type: string
+ *                 description: Aisle where the ingredient can be found in the store
+ *               amount:
+ *                 type: number
+ *                 description: Amount of the ingredient needed for the recipe
+ *               unit:
+ *                 type: string
+ *                 description: Unit of measurement for the ingredient amount
+ *     MealPlan:
+ *       type: object
+ *       description: Object representing a saved meal plan for a user
+ *       properties:
+ *         _id:
+ *           type: string
+ *           description: Unique identifier of the meal plan
+ *         user:
+ *           type: string
+ *           description: Email of the user associated with the meal plan
+ *         menu:
+ *           $ref: '#/components/schemas/Menu'
+ */
+
+/**
+ * @swagger
  * /recipe:
  *   post:
- *     summary: Add a new recipe
+ *     tags:
+ *       - Food Data Management
+ *     summary: Saves a recipe to the database if it doesn't already exist
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: Name of the recipe
- *               type:
- *                 type: string
- *                 description: Type of the recipe (e.g., breakfast, lunch, etc.)
- *               calories:
- *                 type: number
- *                 description: Calories in the recipe
- *               ingredients:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: List of ingredients
+ *             $ref: '#/components/schemas/Recipe'
  *     responses:
- *       200:
+ *       201:
  *         description: Recipe added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Recipe'
  *       400:
  *         description: Invalid request
  *       403:
  *         description: Recipe already exists
  */
-
-/**
- * @swagger
- * /plan:
- *   post:
- *     summary: Add a new meal plan
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 description: User email
- *               plan:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: List of meals in the plan
- *     responses:
- *       200:
- *         description: Meal plan added successfully
- *       400:
- *         description: Invalid request
- *       403:
- *         description: Meal plan already exists
- */
-
 const post_recipe = function (req, res) {
     // error handling
     if (!req.body) {
@@ -86,7 +123,7 @@ const post_recipe = function (req, res) {
             new_recipe
                 .save()
                 .then((data) => {
-                    res.json(data);
+                    res.status(201).json(data);
                 })
                 .catch((err) => {
                     return res.status(500).json("Saving error - " + err);
@@ -95,6 +132,40 @@ const post_recipe = function (req, res) {
     });
 };
 
+/**
+ * @swagger
+ * /plan:
+ *   post:
+ *     tags:
+ *       - Food Data Management
+ *     summary: Save a new meal plan
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             description: Object containing the user's email and the meal plan to save
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Email of the user associated with the meal plan
+ *               plan:
+ *                 $ref: '#/components/schemas/Menu'
+ *     responses:
+ *       201:
+ *         description: Meal plan added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MealPlan'
+ *       400:
+ *         description: Invalid request
+ *       403:
+ *         description: Meal plan overlaps with an existing plan in some of the days
+ *       500:
+ *         description: Internal server error
+ */
 const post_plan = async function (req, res) {
     console.log("Called POST /plan");
     try {
@@ -152,7 +223,7 @@ const post_plan = async function (req, res) {
         });
 
         const savedPlan = await new_plan.save();
-        return res.status(200).json(savedPlan);
+        return res.status(201).json(savedPlan);
     } catch (err) {
         console.error("Error saving meal plan:", err);
         return res.status(500).json("Internal Server Error");

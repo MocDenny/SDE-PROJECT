@@ -21,7 +21,8 @@ const swaggerOptions = {
         info: {
             title: "Authentication Service API",
             version: "1.0.0",
-            description: "APIs for user authentication and account linking",
+            description:
+                "APIs for user authentication and Telegram account linking. <br>This service is responsible for handling user authentication and linking user accounts with Telegram. It belongs to the Business Logic Services layer and provides authentication functionalities that other services can utilize to verify user identities and manage Telegram integrations.",
         },
         servers: [
             {

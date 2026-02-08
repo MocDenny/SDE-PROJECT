@@ -13,7 +13,8 @@ const swaggerOptions = {
         info: {
             title: "Menu Fetcher Service API",
             version: "1.0.0",
-            description: "APIs for fetching personalized weekly menus",
+            description:
+                "APIs for building meal plans based on user preferences. <br>This service belongs to the Business Logic Services layer and is responsible for fetching meal options based on user preferences and caloric intake. It is called by the Meal Planner Service to get new meal options when generating a meal plan. This service houses the core business logic for meal plan generation, ensuring that the generated meal options are tailored to the user's needs and preferences.",
         },
         servers: [
             {

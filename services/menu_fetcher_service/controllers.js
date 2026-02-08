@@ -11,6 +11,145 @@ const axiosInstance = axios.create({
     },
 });
 
+/**
+ * @swagger
+ * tags:
+ *   - name: Meal Plan Generation
+ *     description: Endpoints involved in generating new meal plans
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     MealPlanOptions:
+ *       type: object
+ *       description: Object containing two meal plan options for the week
+ *       properties:
+ *         plan_1:
+ *           type: object
+ *           $ref: '#/components/schemas/Menu'
+ *         plan_2:
+ *           type: object
+ *           $ref: '#/components/schemas/Menu'
+ *     Menu:
+ *       type: array
+ *       description: List of daily menus for the week
+ *       items:
+ *         type: object
+ *         description: Object representing the meals for a single day
+ *         properties:
+ *           day:
+ *             type: string
+ *             format: date
+ *             description: Date of the meal
+ *           breakfast:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *           lunch:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *           dinner:
+ *             type: object
+ *             $ref: '#/components/schemas/Recipe'
+ *     Recipe:
+ *       type: object
+ *       description: Object representing a recipe
+ *       properties:
+ *         name:
+ *           type: string
+ *           description: Name of the recipe
+ *         type:
+ *           type: string
+ *           description: Type of the recipe (e.g., breakfast, lunch, etc.)
+ *         calories:
+ *           type: number
+ *           description: Calories in the recipe
+ *         ingredients:
+ *           type: array
+ *           items:
+ *             type: object
+ *             description: Ingredient object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Name of the ingredient
+ *               aisle:
+ *                 type: string
+ *                 description: Aisle where the ingredient can be found in the store
+ *               amount:
+ *                 type: number
+ *                 description: Amount of the ingredient needed for the recipe
+ *               unit:
+ *                 type: string
+ *                 description: Unit of measurement for the ingredient amount
+ */
+
+/**
+ * @swagger
+ * /menu:
+ *   get:
+ *     tags:
+ *       - Meal Plan Generation
+ *     summary: Build two personalized weekly meal plans
+ *     description: Retrieves two personalized weekly meal plans based on user preferences and caloric intake.
+ *     parameters:
+ *       - in: query
+ *         name: bf_min_cal
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Minimum calories for breakfast
+ *       - in: query
+ *         name: bf_max_cal
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Maximum calories for breakfast
+ *       - in: query
+ *         name: ld_min_cal
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Minimum calories for lunch and dinner
+ *       - in: query
+ *         name: ld_max_cal
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Maximum calories for lunch and dinner
+ *       - in: query
+ *         name: diet
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User diet preference
+ *       - in: query
+ *         name: intolerances
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User intolerances (comma-separated)
+ *       - in: query
+ *         name: start_date
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Start date for the menu
+ *     responses:
+ *       200:
+ *         description: Weekly menu generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MealPlanOptions'
+ *       400:
+ *         description: Bad request, missing parameters
+ *       500:
+ *         description: Service error
+ */
+
 const get_menu = function (req, res) {
     console.log("Called /menu with URL: " + req.url);
     console.log("Query params: ", req.query);
