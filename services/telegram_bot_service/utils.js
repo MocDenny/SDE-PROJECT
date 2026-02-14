@@ -292,6 +292,33 @@ const askForValidInteger = (bot, chatId, message, inlineKeyboard = [], validate 
     });
 };
 
+const sendLongMessage = async (bot, chatId, message) => {
+    const MAX_LENGTH = 4000; // Telegram's maximum message length is 4096 characters, using 4000 to be safe
+
+    // Split the message into chunks based on \n\n
+    const chunks = [];
+    while (message.length > MAX_LENGTH) {
+        const splitIndex = message.lastIndexOf("\n\n", MAX_LENGTH);
+        if (splitIndex === -1) {
+            // If no \n\n is found, split at MAX_LENGTH
+            chunks.push(message.slice(0, MAX_LENGTH));
+            message = message.slice(MAX_LENGTH);
+        } else {
+            chunks.push(message.slice(0, splitIndex));
+            message = message.slice(splitIndex + 2); // Skip the \n\n
+        }
+    }
+    // Add the remaining part of the message
+    if (message.length > 0) {
+        chunks.push(message);
+    }
+
+    // Send each chunk sequentially, ensuring confirmation before sending the next
+    for (const chunk of chunks) {
+        await bot.sendMessage(chatId, chunk, { parse_mode: "MarkdownV2" });
+    }
+};
+
 module.exports = {
     getUserDataByTelegramId,
     unlinkTelegramUser,
@@ -300,4 +327,5 @@ module.exports = {
     askForValidDate,
     printGroceryList,
     askForValidInteger,
+    sendLongMessage,
 };

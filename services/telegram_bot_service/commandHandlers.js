@@ -119,6 +119,7 @@ const newPlanCommand = (bot, msg) => {
                     )
                     .then((calories) => {
                         const today = new Date();
+                        today.setHours(0, 0, 0, 0); // set to midnight for accurate comparisons
                         const tomorrow = new Date(today);
                         tomorrow.setDate(today.getDate() + 1);
                         const nextWeek = new Date(today);
@@ -389,6 +390,7 @@ const myPlansCommand = (bot, msg) => {
         .then((email) => {
             if (email) {
                 const today = new Date();
+                today.setHours(0, 0, 0, 0); // set to midnight for accurate comparisons
                 const yesterday = new Date(today);
                 yesterday.setDate(today.getDate() - 1);
                 const lastWeek = new Date(today);
@@ -524,6 +526,7 @@ const groceryListCommand = (bot, msg) => {
         .then((email) => {
             if (email) {
                 const today = new Date();
+                today.setHours(0, 0, 0, 0); // set to midnight for accurate comparisons
                 const tomorrow = new Date(today);
                 tomorrow.setDate(today.getDate() + 1);
                 const inThreeDays = new Date(today);
@@ -537,8 +540,8 @@ const groceryListCommand = (bot, msg) => {
                         chatId,
                         "From which date do you want to see the grocery list? Please enter the start date (format: YYYY-MM-DD):",
                         [
-                            [{ text: "Today", callback_data: today.toISOString().split("T")[0] }],
                             [
+                                { text: "Today", callback_data: today.toISOString().split("T")[0] },
                                 {
                                     text: "Tomorrow",
                                     callback_data: tomorrow.toISOString().split("T")[0],
@@ -549,8 +552,6 @@ const groceryListCommand = (bot, msg) => {
                                     text: "In 3 Days",
                                     callback_data: inThreeDays.toISOString().split("T")[0],
                                 },
-                            ],
-                            [
                                 {
                                     text: "Next Week",
                                     callback_data: nextWeek.toISOString().split("T")[0],
@@ -571,8 +572,6 @@ const groceryListCommand = (bot, msg) => {
                                             text: "Today",
                                             callback_data: today.toISOString().split("T")[0],
                                         },
-                                    ],
-                                    [
                                         {
                                             text: "Tomorrow",
                                             callback_data: tomorrow.toISOString().split("T")[0],
@@ -583,8 +582,6 @@ const groceryListCommand = (bot, msg) => {
                                             text: "In 3 Days",
                                             callback_data: inThreeDays.toISOString().split("T")[0],
                                         },
-                                    ],
-                                    [
                                         {
                                             text: "Next Week",
                                             callback_data: nextWeek.toISOString().split("T")[0],
@@ -612,12 +609,10 @@ const groceryListCommand = (bot, msg) => {
                                                 "Your grocery list is currently empty.",
                                             );
                                         } else {
-                                            bot.sendMessage(
+                                            utils.sendLongMessage(
+                                                bot,
                                                 chatId,
                                                 utils.printGroceryList(groceryList),
-                                                {
-                                                    parse_mode: "MarkdownV2",
-                                                },
                                             );
                                         }
                                     })
