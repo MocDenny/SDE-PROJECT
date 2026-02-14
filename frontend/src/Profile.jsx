@@ -47,7 +47,10 @@ const Profile = () => {
                                 <ListItem>
                                     <ListItemText
                                         primary='Diet'
-                                        secondary={user.preferences?.diet || "None"}
+                                        secondary={
+                                            user.preferences?.diet?.charAt(0).toUpperCase() +
+                                                user.preferences?.diet?.slice(1) || "None"
+                                        }
                                     />
                                 </ListItem>
                                 <ListItem>
@@ -55,7 +58,13 @@ const Profile = () => {
                                         primary='Intolerances'
                                         secondary={
                                             user.preferences?.intolerances?.length
-                                                ? user.preferences.intolerances.join(", ")
+                                                ? user.preferences.intolerances
+                                                      .map(
+                                                          (intolerance) =>
+                                                              intolerance.charAt(0).toUpperCase() +
+                                                              intolerance.slice(1),
+                                                      )
+                                                      .join(", ")
                                                 : "None"
                                         }
                                     />

@@ -14,8 +14,12 @@ const TopBar = () => {
     return (
         <AppBar position='static' color='primary'>
             <Toolbar>
-                <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-                    Welcome!
+                <Typography
+                    variant='h6'
+                    component={Link}
+                    to='/'
+                    sx={{ flexGrow: 1, color: "inherit", textDecoration: "none" }}>
+                    Meal Planner
                 </Typography>
                 {isLoggedIn ? (
                     <>

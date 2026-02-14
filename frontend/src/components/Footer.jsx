@@ -68,7 +68,10 @@ const Footer = () => {
                             <Typography variant='h6' gutterBottom>
                                 Resources
                             </Typography>
-                            <Link href='/documentation' color='inherit' underline='hover'>
+                            <Link
+                                href='https://github.com/MocDenny/SDE-PROJECT/wiki'
+                                color='inherit'
+                                underline='hover'>
                                 Documentation
                             </Link>
                         </Grid>
