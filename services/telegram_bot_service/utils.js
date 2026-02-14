@@ -73,7 +73,7 @@ const escapeMarkdownV2 = (text) => {
     return text.replace(/[\\_*\[\]()~`>#+\-=|{}.!]/g, "\\$&");
 };
 
-const askForValidDate = (bot, chatId, message) => {
+const askForValidDate = (bot, chatId, message, inlineKeyboard = [], validate = null) => {
     const isValidDate = (dateString) => {
         const regex = /^\d{4}-\d{2}-\d{2}$/;
         if (!regex.test(dateString)) {
@@ -85,19 +85,75 @@ const askForValidDate = (bot, chatId, message) => {
 
     return new Promise((resolve) => {
         const ask = () => {
-            bot.sendMessage(chatId, message).then(() => {
-                bot.once("message", (msg) => {
-                    if (msg.chat.id === chatId) {
-                        if (isValidDate(msg.text)) {
+            const options =
+                inlineKeyboard.length > 0
+                    ? {
+                          reply_markup: {
+                              inline_keyboard: inlineKeyboard,
+                          },
+                      }
+                    : {};
+
+            const messageListener = (msg) => {
+                if (msg.chat.id === chatId) {
+                    if (isValidDate(msg.text)) {
+                        if (!validate || validate(msg.text)) {
+                            cleanupListeners();
                             resolve(msg.text);
                         } else {
+                            cleanupListeners();
                             bot.sendMessage(
                                 chatId,
-                                "La data inserita non è valida. Per favore, usa il formato YYYY-MM-DD.",
+                                "The date entered is not valid for the specified criteria. Please try again.",
                             ).then(ask);
                         }
+                    } else {
+                        cleanupListeners();
+                        bot.sendMessage(
+                            chatId,
+                            "The date entered is not valid. Please use the YYYY-MM-DD format.",
+                        ).then(ask);
                     }
-                });
+                }
+            };
+
+            const callbackQueryListener = (callbackQuery) => {
+                if (callbackQuery.message.chat.id === chatId) {
+                    const selectedValue = callbackQuery.data;
+                    if (isValidDate(selectedValue)) {
+                        if (!validate || validate(selectedValue)) {
+                            bot.answerCallbackQuery(callbackQuery.id);
+                            cleanupListeners();
+                            resolve(selectedValue);
+                        } else {
+                            cleanupListeners();
+                            bot.sendMessage(
+                                chatId,
+                                "The selected date is not valid for the specified criteria. Please try again.",
+                            ).then(ask);
+                        }
+                    } else {
+                        cleanupListeners();
+                        bot.sendMessage(
+                            chatId,
+                            "The selected date is not valid. Please use the YYYY-MM-DD format.",
+                        ).then(ask);
+                    }
+                }
+            };
+
+            const cleanupListeners = () => {
+                bot.removeListener("message", messageListener);
+                bot.removeListener("callback_query", callbackQueryListener);
+            };
+
+            cleanupListeners(); // Ensure no duplicate listeners before setting new ones
+            bot.sendMessage(chatId, message, options).then(() => {
+                bot.once("message", messageListener);
+
+                if (inlineKeyboard.length > 0) {
+                    bot.once("callback_query", callbackQueryListener);
+                }
             });
         };
         ask();
@@ -151,6 +207,91 @@ const printGroceryList = (groceryList) => {
     return output;
 };
 
+const askForValidInteger = (bot, chatId, message, inlineKeyboard = [], validate = null) => {
+    const isValidInteger = (input) => {
+        const parsed = parseInt(input, 10);
+        return !isNaN(parsed) && Number.isInteger(parsed);
+    };
+
+    return new Promise((resolve) => {
+        const ask = () => {
+            const options =
+                inlineKeyboard.length > 0
+                    ? {
+                          reply_markup: {
+                              inline_keyboard: inlineKeyboard,
+                          },
+                      }
+                    : {};
+
+            const messageListener = (msg) => {
+                if (msg.chat.id === chatId) {
+                    if (isValidInteger(msg.text)) {
+                        const parsedValue = parseInt(msg.text, 10);
+                        if (!validate || validate(parsedValue)) {
+                            cleanupListeners();
+                            resolve(parsedValue);
+                        } else {
+                            cleanupListeners();
+                            bot.sendMessage(
+                                chatId,
+                                "The number entered is not valid for the specified criteria. Please try again.",
+                            ).then(ask);
+                        }
+                    } else {
+                        cleanupListeners();
+                        bot.sendMessage(
+                            chatId,
+                            "The input is not a valid integer. Please enter a valid number.",
+                        ).then(ask);
+                    }
+                }
+            };
+
+            const callbackQueryListener = (callbackQuery) => {
+                if (callbackQuery.message.chat.id === chatId) {
+                    const selectedValue = callbackQuery.data;
+                    if (isValidInteger(selectedValue)) {
+                        const parsedValue = parseInt(selectedValue, 10);
+                        if (!validate || validate(parsedValue)) {
+                            bot.answerCallbackQuery(callbackQuery.id);
+                            cleanupListeners();
+                            resolve(parsedValue);
+                        } else {
+                            cleanupListeners();
+                            bot.sendMessage(
+                                chatId,
+                                "The selected number is not valid for the specified criteria. Please try again.",
+                            ).then(ask);
+                        }
+                    } else {
+                        cleanupListeners();
+                        bot.sendMessage(
+                            chatId,
+                            "The selected input is not a valid integer. Please enter a valid number.",
+                        ).then(ask);
+                    }
+                }
+            };
+
+            const cleanupListeners = () => {
+                bot.removeListener("message", messageListener);
+                bot.removeListener("callback_query", callbackQueryListener);
+            };
+
+            cleanupListeners(); // Ensure no duplicate listeners before setting new ones
+            bot.sendMessage(chatId, message, options).then(() => {
+                bot.once("message", messageListener);
+
+                if (inlineKeyboard.length > 0) {
+                    bot.once("callback_query", callbackQueryListener);
+                }
+            });
+        };
+        ask();
+    });
+};
+
 module.exports = {
     getUserDataByTelegramId,
     unlinkTelegramUser,
@@ -158,4 +299,5 @@ module.exports = {
     escapeMarkdownV2,
     askForValidDate,
     printGroceryList,
+    askForValidInteger,
 };

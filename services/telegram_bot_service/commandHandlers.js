@@ -90,14 +90,39 @@ const newPlanCommand = (bot, msg) => {
         .getUserDataByTelegramId(telegramUserId)
         .then((email) => {
             if (email) {
-                // Step 1: Ask for daily calories
-                bot.sendMessage(chatId, "How many daily calories do you want for your meal plan?", {
-                    reply_markup: {
-                        force_reply: true,
-                    },
-                }).then((caloriesMessage) => {
-                    bot.onReplyToMessage(chatId, caloriesMessage.message_id, (caloriesReply) => {
-                        const calories = caloriesReply.text;
+                const lightCalories = 1500;
+                const normalCalories = 2000;
+                const highCalories = 2500;
+
+                utils
+                    .askForValidInteger(
+                        bot,
+                        chatId,
+                        "How many daily calories do you want for your meal plan? Choose one of the options below or enter a custom value between 1200 and 3500:",
+                        [
+                            [
+                                {
+                                    text: "🥗 Light (1500 kcal)",
+                                    callback_data: lightCalories.toString(),
+                                },
+                                {
+                                    text: "🍛 Normal (2000 kcal)",
+                                    callback_data: normalCalories.toString(),
+                                },
+                                {
+                                    text: "🍔 High (2500 kcal)",
+                                    callback_data: highCalories.toString(),
+                                },
+                            ],
+                        ],
+                        (calories) => calories >= 1200 && calories <= 3500,
+                    )
+                    .then((calories) => {
+                        const today = new Date();
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(today.getDate() + 1);
+                        const nextWeek = new Date(today);
+                        nextWeek.setDate(today.getDate() + 7);
 
                         // Step 2: Ask for start date using the utility function
                         utils
@@ -105,6 +130,27 @@ const newPlanCommand = (bot, msg) => {
                                 bot,
                                 chatId,
                                 "Please enter the start date (format: YYYY-MM-DD):",
+                                [
+                                    [
+                                        {
+                                            text: "Today",
+                                            callback_data: today.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                    [
+                                        {
+                                            text: "Tomorrow",
+                                            callback_data: tomorrow.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                    [
+                                        {
+                                            text: "Next Week",
+                                            callback_data: nextWeek.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                ],
+                                (date) => new Date(date) >= today,
                             )
                             .then((startDate) => {
                                 // Step 3: Ask for diet preference (optional)
@@ -322,7 +368,6 @@ const newPlanCommand = (bot, msg) => {
                                 });
                             });
                     });
-                });
             } else {
                 bot.sendMessage(
                     chatId,
@@ -343,20 +388,82 @@ const myPlansCommand = (bot, msg) => {
         .getUserDataByTelegramId(telegramUserId)
         .then((email) => {
             if (email) {
-                // Ask for start date using the utility function
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                const lastWeek = new Date(today);
+                lastWeek.setDate(today.getDate() - 7);
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                const nextWeek = new Date(today);
+                nextWeek.setDate(today.getDate() + 7);
+
                 utils
                     .askForValidDate(
                         bot,
                         chatId,
                         "To search for meal plans in a time range, please enter the start date (format: YYYY-MM-DD):",
+                        [
+                            [
+                                {
+                                    text: "Last Week",
+                                    callback_data: lastWeek.toISOString().split("T")[0],
+                                },
+                            ],
+                            [
+                                {
+                                    text: "Yesterday",
+                                    callback_data: yesterday.toISOString().split("T")[0],
+                                },
+                                { text: "Today", callback_data: today.toISOString().split("T")[0] },
+                                {
+                                    text: "Tomorrow",
+                                    callback_data: tomorrow.toISOString().split("T")[0],
+                                },
+                            ],
+                            [
+                                {
+                                    text: "Next Week",
+                                    callback_data: nextWeek.toISOString().split("T")[0],
+                                },
+                            ],
+                        ],
                     )
                     .then((startDate) => {
-                        // Ask for end date using the utility function
                         utils
                             .askForValidDate(
                                 bot,
                                 chatId,
                                 "Now enter the end date (format: YYYY-MM-DD):",
+                                [
+                                    [
+                                        {
+                                            text: "Last Week",
+                                            callback_data: lastWeek.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                    [
+                                        {
+                                            text: "Yesterday",
+                                            callback_data: yesterday.toISOString().split("T")[0],
+                                        },
+                                        {
+                                            text: "Today",
+                                            callback_data: today.toISOString().split("T")[0],
+                                        },
+                                        {
+                                            text: "Tomorrow",
+                                            callback_data: tomorrow.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                    [
+                                        {
+                                            text: "Next Week",
+                                            callback_data: nextWeek.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                ],
+                                (endDate) => new Date(endDate) >= new Date(startDate),
                             )
                             .then((endDate) => {
                                 // fetch meal plans from meal planner service
@@ -371,7 +478,7 @@ const myPlansCommand = (bot, msg) => {
                                 })
                                     .then((resp) => {
                                         const plans = resp.data;
-                                        console.log("Retrieved plans: " + JSON.stringify(plans));
+                                        //console.log("Retrieved plans: " + JSON.stringify(plans));
                                         if (plans.length === 0) {
                                             bot.sendMessage(
                                                 chatId,
@@ -416,20 +523,75 @@ const groceryListCommand = (bot, msg) => {
         .getUserDataByTelegramId(telegramUserId)
         .then((email) => {
             if (email) {
-                // Ask for start date using the utility function
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                const inThreeDays = new Date(today);
+                inThreeDays.setDate(today.getDate() + 3);
+                const nextWeek = new Date(today);
+                nextWeek.setDate(today.getDate() + 7);
+
                 utils
                     .askForValidDate(
                         bot,
                         chatId,
                         "From which date do you want to see the grocery list? Please enter the start date (format: YYYY-MM-DD):",
+                        [
+                            [{ text: "Today", callback_data: today.toISOString().split("T")[0] }],
+                            [
+                                {
+                                    text: "Tomorrow",
+                                    callback_data: tomorrow.toISOString().split("T")[0],
+                                },
+                            ],
+                            [
+                                {
+                                    text: "In 3 Days",
+                                    callback_data: inThreeDays.toISOString().split("T")[0],
+                                },
+                            ],
+                            [
+                                {
+                                    text: "Next Week",
+                                    callback_data: nextWeek.toISOString().split("T")[0],
+                                },
+                            ],
+                        ],
+                        (date) => new Date(date) >= today,
                     )
                     .then((startDate) => {
-                        // Ask for end date using the utility function
                         utils
                             .askForValidDate(
                                 bot,
                                 chatId,
                                 "Now enter the end date (format: YYYY-MM-DD):",
+                                [
+                                    [
+                                        {
+                                            text: "Today",
+                                            callback_data: today.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                    [
+                                        {
+                                            text: "Tomorrow",
+                                            callback_data: tomorrow.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                    [
+                                        {
+                                            text: "In 3 Days",
+                                            callback_data: inThreeDays.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                    [
+                                        {
+                                            text: "Next Week",
+                                            callback_data: nextWeek.toISOString().split("T")[0],
+                                        },
+                                    ],
+                                ],
+                                (endDate) => new Date(endDate) >= new Date(startDate),
                             )
                             .then((endDate) => {
                                 // fetch grocery list from meal planner service
