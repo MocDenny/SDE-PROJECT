@@ -1,4 +1,14 @@
 const axios = require("axios");
+const { google } = require("googleapis");
+
+// the scope for creating calendar events.
+let oauth2Client = new google.auth.OAuth2(
+    process.env.CLIENT_ID,
+    process.env.CLIENT_SECRET,
+    `http://localhost:${process.env.GROCERY_LIST_PORT}/callback`,
+);
+
+let event_info = {};
 
 /**
  * @swagger
@@ -90,7 +100,14 @@ const axios = require("axios");
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/GroceryList'
+ *             type: object
+ *             properties:
+ *               list_content:
+ *                 schema:
+ *                   $ref: '#/components/schemas/GroceryList'
+ *               auth_url:
+ *                 type: string
+ *                   description: Oauth link to give Google Calendar access to the project
  *       400:
  *         description: Bad request, missing parameters
  *       500:
@@ -98,7 +115,6 @@ const axios = require("axios");
  */
 const get_grocery_list = function (req, res) {
     console.log("Called GET /groceryList");
-
     // error handling
     if (!req.query.email) {
         return res.status(400).json("Error: Request parameters are empty or incomplete");
@@ -153,14 +169,20 @@ const get_grocery_list = function (req, res) {
                 data: {
                     recipes: recipes,
                 },
-            })
-                .then((response) => {
-                    res.status(200).json(response.data);
-                })
-                .catch((error) => {
-                    console.error("Error optimizing grocery list:", error);
-                    res.status(500).json("Error optimizing grocery list");
+            }).then((response) => {
+                // update callpack
+                const authUrl = oauth2Client.generateAuthUrl({
+                    access_type: "offline",
+                    scope: ["https://www.googleapis.com/auth/calendar"],
+                    include_granted_scopes: true,
                 });
+                event_info = {
+                    date_from: date_from,
+                    date_to: date_to,
+                    list: response.data,
+                };
+                res.status(200).json({ list_content: response.data, auth_url: authUrl });
+            });
         })
         .catch((error) => {
             console.error("Error fetching grocery list:", error);
@@ -168,6 +190,133 @@ const get_grocery_list = function (req, res) {
         });
 };
 
+/**
+ * @swagger
+ * /callback:
+ *   get:
+ *     tags:
+ *      - Google Calendar Event Creation
+ *     summary: Create an event for the generated shopping list.
+ *     description: Creates a Google Calendar event to remind users to shop for their meal plan. It does not interface directly with the user.
+ *     parameters:
+ *       - in: query
+ *         name: code
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The authentication code needed to access Google Calendar.
+ *     responses:
+ *       200:
+ *         description: Event successfully created
+ *         content:
+ *           application/json:
+ *             schema:
+ *             type: string
+ *             description: Successful creation message.
+ *       400:
+ *         description: Bad request, missing parameters
+ *       500:
+ *         description: Service error
+ */
+const oauth2callback = (req, res) => {
+    // error handling
+    if (!req.query) {
+        return res.status(400).json("Error: Request parameters are empty or incomplete");
+    }
+
+    const { code } = req.query;
+    // exchange for token
+
+    if (code.error) {
+        // An error response e.g. error=access_denied
+        res.status(500).json("Oauth code error: " + code.error);
+    } else {
+        // transform shopping list to text
+        const aisleEmojis = {
+            "Nut butters, Jams, and Honey": "🍯",
+            "Spices and Seasonings": "🌶️",
+            Cereal: "🥣",
+            Baking: "🧁",
+            "Milk, Eggs, Other Dairy": "🥛",
+            Meat: "🍖",
+            "Alcoholic Beverages": "🍷",
+            "Ethnic Foods": "🍜",
+            Produce: "🥦",
+            "Pasta and Rice": "🍝",
+            "Bakery/Bread": "🍞",
+            Condiments: "🫙",
+            Seafood: "🦞",
+            Beverages: "🧃",
+            Cheese: "🧀",
+            Nuts: "🥜",
+            "Health Foods": "🥗",
+            "Gluten Free": "🌾",
+            Gourmet: "🍽️",
+            "Sweet Snacks": "🍫",
+            "Canned and Jarred": "🥫",
+        };
+
+        let output = "🛒 Grocery List\n\n";
+
+        for (const [aisle, products] of Object.entries(event_info.list)) {
+            const emoji = aisleEmojis[aisle] || "📂"; // Default emoji if aisle not found
+            output += `${emoji} ${aisle}\n`;
+
+            products.forEach((product) => {
+                const name = product.name.charAt(0).toUpperCase() + product.name.slice(1);
+                const roundedAmount = Math.ceil(product.amount * 100) / 100; // Round up to 2 decimal places
+                const escapedAmount = roundedAmount.toString();
+                const escapedUnit = product.unit;
+
+                output += `\\- ${name}: ${escapedAmount} ${escapedUnit}\n`;
+            });
+            output += "\n"; // Add a blank line between aisles
+        }
+
+        oauth2Client.getToken(code).then((tokens) => {
+            oauth2Client.setCredentials(tokens.tokens);
+            const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+            // add event to calendar
+            const event = {
+                summary: "Grocery Shopping List",
+                description: output,
+                start: {
+                    dateTime: event_info.date_from,
+                    timeZone: "Europe/Rome",
+                },
+                end: {
+                    dateTime: event_info.date_to,
+                    timeZone: "Europe/Rome",
+                },
+                reminders: {
+                    useDefault: false,
+                    overrides: [
+                        { method: "email", minutes: 24 * 60 },
+                        { method: "popup", minutes: 30 },
+                    ],
+                },
+            };
+
+            calendar.events.insert(
+                {
+                    auth: oauth2Client,
+                    calendarId: "primary",
+                    resource: event,
+                },
+                (err, event) => {
+                    if (err) {
+                        console.log("There was an error contacting the Calendar service: " + err);
+                        res.status(500).json("Google Calendar Api error: " + err);
+                    } else {
+                        res.status(200).json("Event successfully created");
+                    }
+                },
+            );
+        });
+    }
+};
+
 module.exports = {
     get_grocery_list,
+    oauth2callback,
 };

@@ -7,8 +7,10 @@
     "type": "commonjs",
     "main": "index.js",
     "dependencies": {
+        "@google-cloud/local-auth": "^2.1.0",
         "axios": "^1.13.2",
         "express": "^5.2.1",
+        "googleapis": "^105.0.0",
         "swagger-jsdoc": "^6.2.8",
         "swagger-ui-express": "^5.0.1"
     },

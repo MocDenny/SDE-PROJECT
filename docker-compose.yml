@@ -112,7 +112,9 @@ services:
     grocery-list-service:
         build: ./services/grocery_list_service
         container_name: grocery_list_service
-        env_file: "containers.env"
+        env_file:
+            - "containers.env"
+            - "calendar.env"
         ports:
             - "3008:3008"
         volumes:

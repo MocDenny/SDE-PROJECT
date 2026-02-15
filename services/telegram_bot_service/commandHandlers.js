@@ -602,18 +602,27 @@ const groceryListCommand = (bot, msg) => {
                                     },
                                 })
                                     .then((resp) => {
-                                        const groceryList = resp.data;
+                                        const groceryList = resp.data.list_content;
                                         if (groceryList.length === 0) {
                                             bot.sendMessage(
                                                 chatId,
                                                 "Your grocery list is currently empty.",
                                             );
                                         } else {
-                                            utils.sendLongMessage(
-                                                bot,
-                                                chatId,
-                                                utils.printGroceryList(groceryList),
-                                            );
+                                            utils
+                                                .sendLongMessage(
+                                                    bot,
+                                                    chatId,
+                                                    utils.printGroceryList(groceryList),
+                                                )
+                                                .then(() => {
+                                                    // send auth url
+                                                    bot.sendMessage(
+                                                        chatId,
+                                                        "To add the shopping list to your Google Calendar, log in with this link: " +
+                                                            resp.data.auth_url,
+                                                    );
+                                                });
                                         }
                                     })
                                     .catch((error) => {
