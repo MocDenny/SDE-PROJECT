@@ -619,8 +619,10 @@ const groceryListCommand = (bot, msg) => {
                                                     // send auth url
                                                     bot.sendMessage(
                                                         chatId,
-                                                        "To add the shopping list to your Google Calendar, log in with this link: " +
-                                                            resp.data.auth_url,
+                                                        "To add the shopping list to your Google Calendar, log in with [this link](" +
+                                                            resp.data.auth_url +
+                                                            ")",
+                                                        { parse_mode: "MarkdownV2" },
                                                     );
                                                 });
                                         }

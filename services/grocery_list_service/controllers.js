@@ -107,7 +107,7 @@ let event_info = {};
  *                   $ref: '#/components/schemas/GroceryList'
  *               auth_url:
  *                 type: string
- *                   description: Oauth link to give Google Calendar access to the project
+ *                 description: Oauth link to give Google Calendar access to the project
  *       400:
  *         description: Bad request, missing parameters
  *       500:
