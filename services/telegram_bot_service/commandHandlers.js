@@ -669,6 +669,37 @@ const unlinkCommand = (bot, msg) => {
         });
 };
 
+const helpCommand = (bot, msg) => {
+    const chatId = msg.chat.id;
+    const telegramUserId = msg.from.id;
+
+    utils
+        .getUserDataByTelegramId(telegramUserId)
+        .then((email) => {
+            if (email) {
+                bot.sendMessage(
+                    chatId,
+                    `Here are the available commands:\n` +
+                        `/start - Link your Telegram account to the Meal Planner system (necessary to use the bot).\n` +
+                        `/newplan - Create a new weekly meal plan.\n` +
+                        `/myplans - View your saved meal plans in a specified time period.\n` +
+                        `/grocerylist - Get your grocery list for upcoming days.\n` +
+                        `/unlink - Unlink your Telegram account from the system.\n` +
+                        `/help - Show this help message.`,
+                );
+            } else {
+                bot.sendMessage(
+                    chatId,
+                    "Welcome to the Meal Planner bot! To use this bot, please log in or sign up on our website and visit the profile page. Then, click on 'Telegram Connection' and follow the instructions.",
+                );
+            }
+        })
+        .catch((error) => {
+            bot.sendMessage(chatId, "I'm sorry, an error occurred while retrieving your data.");
+            console.log("[/help] Error while connecting to backend:" + error.message);
+        });
+};
+
 module.exports = {
     startCommand,
     startTokenCommand,
@@ -676,4 +707,5 @@ module.exports = {
     myPlansCommand,
     groceryListCommand,
     unlinkCommand,
+    helpCommand,
 };
