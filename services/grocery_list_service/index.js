@@ -2,9 +2,11 @@ const express = require("express");
 const { get_grocery_list, oauth2callback } = require("./controllers");
 const swaggerUi = require("swagger-ui-express");
 const swaggerJsdoc = require("swagger-jsdoc");
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Swagger configuration
 const swaggerOptions = {

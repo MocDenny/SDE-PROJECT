@@ -268,7 +268,7 @@ const oauth2callback = (req, res) => {
                 const escapedAmount = roundedAmount.toString();
                 const escapedUnit = product.unit;
 
-                output += `\\- ${name}: ${escapedAmount} ${escapedUnit}\n`;
+                output += `- ${name}: ${escapedAmount} ${escapedUnit}\n`;
             });
             output += "\n"; // Add a blank line between aisles
         }
@@ -281,12 +281,14 @@ const oauth2callback = (req, res) => {
                 summary: "Grocery Shopping List",
                 description: output,
                 start: {
-                    dateTime: event_info.date_from,
+                    //dateTime: event_info.date_from,
                     timeZone: "Europe/Rome",
+                    date: event_info.date_from.toISOString().split("T")[0],
                 },
                 end: {
-                    dateTime: event_info.date_to,
+                    //dateTime: event_info.date_to,
                     timeZone: "Europe/Rome",
+                    date: event_info.date_to.toISOString().split("T")[0],
                 },
                 reminders: {
                     useDefault: false,

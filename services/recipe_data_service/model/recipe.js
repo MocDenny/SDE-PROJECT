@@ -36,9 +36,9 @@ const accepted_aisle = [
 ];
 
 const recipeSchema = new Schema({
-    name: { type: String, required: true },
-    type: { type: String, required: true },
-    calories: { type: Number, required: true },
+    name: { type: String, required: false },
+    type: { type: String, required: false },
+    calories: { type: Number, required: false },
     ingredients: [
         {
             amount: { type: Number, required: true },
